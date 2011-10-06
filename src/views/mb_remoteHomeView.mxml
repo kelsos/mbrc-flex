@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		currentState="Home" title="MusicBee Remote">
+	<s:states>
+		<s:State name="Home"/>
+		<s:State name="Settings"/>
+	</s:states>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Image id="coverBox" includeIn="Home" x="3" y="10" width="300" height="300"
+			 scaleMode="stretch" smooth="true" smoothingQuality="high"/>
+	<s:Button id="previousButton" includeIn="Home" x="311" y="10" width="159" height="50"
+			  label="Previous"/>
+	<s:Button id="playButton" includeIn="Home" x="311" y="68" width="159" height="50"
+			  label="Play/Pause" enabled="true"/>
+	<s:Button id="nextButton" includeIn="Home" x="311" y="126" width="159" height="50" label="Next"/>
+	<s:HSlider id="volumeSlider" includeIn="Home" x="20" y="480"/>
+	<s:VGroup includeIn="Home" x="20" y="339" width="440" height="122">
+		<s:Label width="80" text="Artist:" textAlign="right" verticalAlign="top"/>
+		<s:Label width="80" text="Title:" textAlign="right"/>
+		<s:Label width="80" text="Album:" textAlign="right"/>
+		<s:Label width="80" text="Year:" textAlign="right"/>
+	</s:VGroup>
+	<s:TextInput includeIn="Settings" x="20" y="62" width="343"/>
+	<s:Label includeIn="Settings" x="20" y="31" text="Server IP:"/>
+	<s:Label includeIn="Settings" x="371" y="31" text="Port:"/>
+	<s:TextInput includeIn="Settings" x="371" y="62" width="105"/>
+</s:View>
