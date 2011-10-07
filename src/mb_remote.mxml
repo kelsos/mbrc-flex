@@ -1,8 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:ViewNavigatorApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
-							xmlns:s="library://ns.adobe.com/flex/spark" firstView="views.mb_remoteHomeView">
+<s:ViewNavigatorApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
+							xmlns:s="library://ns.adobe.com/flex/spark"
+							firstView="views.mb_remoteHomeView" splashScreenScaleMode="none">
+	<fx:Script>
+		<![CDATA[
+			import views.mb_remoteSettingsView;
+			
+		]]>
+	</fx:Script>
+	<s:navigationContent>
+		<s:Button icon="@Embed('icons/home.png')" click="navigator.popToFirstView()"/>
+		<s:Button icon="@Embed('icons/tools.png')" click="navigator.pushView(views.mb_remoteSettingsView)"/>
+	</s:navigationContent>
 	<fx:Style source="mb_remote.css"/>
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
+
 </s:ViewNavigatorApplication>
