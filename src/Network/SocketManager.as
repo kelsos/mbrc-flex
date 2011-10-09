@@ -7,7 +7,13 @@ package Network {
 	public class SocketManager extends EventDispatcher {
 		private var socket:Socket;
 		private var _serverAnswer:String="";
+
 		
+		public function ConnectionAchieved():Boolean{
+			if (socket.connected)
+				return true;
+			return false;
+		}
 		public function ServerAnswer():String{
 			return _serverAnswer;
 		}
@@ -20,7 +26,8 @@ package Network {
 			configureListeners(socket);
 		}
 		public function connect(hostname:String,port:uint):void{
-			socket.connect(hostname,port);
+			if (!socket.connected)
+				socket.connect(hostname,port);
 		}
 		public function send(data:String):void {
 			socket.writeUTFBytes(data);
