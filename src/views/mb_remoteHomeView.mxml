@@ -9,138 +9,105 @@
 		<![CDATA[
 			import Network.*;
 			
+			import mx.events.DragEvent;
 			import mx.events.FlexEvent;
 			
 			import spark.events.ViewNavigatorEvent;
 			import spark.managers.PersistenceManager;
-			
-			[Embed(source='icons/play.png')]
-			public static var playIcon:Class;
-			[Embed(source='icons/pause.png')]
-			public static var pauseIcon:Class;
 
-			
 			private var p:PersistenceManager = new PersistenceManager();
-			private var socketMan:SocketManager = new SocketManager();
-			
+			private var mbConMan:ConnectionManager = new ConnectionManager();
+				
+			[Embed(source='icons/play.png')]
+			private static var playIcon:Class;
+			[Embed(source='icons/pause.png')]
+			private static var pauseIcon:Class;
+
 			private function connect():void
 			{
-				socketMan.connect(p.getProperty("serverAddress").toString(),parseInt(p.getProperty("serverPort").toString()));
-				socketMan.send("GETVOL\r\n");
-				socketMan.send("GETPLAYSTATE\r\n");
+				mbConMan.connect(p.getProperty("serverAddress").toString(),parseInt(p.getProperty("serverPort").toString()));
 			}
 			
 			protected function previousButton_clickHandler(event:MouseEvent):void
 			{
-				if(!socketMan.ConnectionAchieved())
+				if(!mbConMan.ConnectionAchieved())
 					connect();
-				socketMan.send("PREVIOUS\r\n");
+				mbConMan.requestPreviousTrack();
 			}
 			
 			protected function playButton_clickHandler(event:MouseEvent):void
 			{
-				if(!socketMan.ConnectionAchieved())
+				if(!mbConMan.ConnectionAchieved())
 					connect();
-				socketMan.send("PLAYPAUSE\r\n");
-				socketMan.send("GETPLAYSTATE\r\n");
+				mbConMan.requestPlayPause();
+				mbConMan.requestPlayState();
 			}
 			
 			protected function nextButton_clickHandler(event:MouseEvent):void
 			{
-				if(!socketMan.ConnectionAchieved())
+				if(!mbConMan.ConnectionAchieved())
 					connect();
-				socketMan.send("NEXT\r\n");
+				mbConMan.requestNextTrack();
 			}
 			
 			protected function volUp_clickHandler(event:MouseEvent):void
 			{
-				if(!socketMan.ConnectionAchieved())
+				if(!mbConMan.ConnectionAchieved())
 					connect();
-				socketMan.send("INCREASEVOL\r\n");
+				mbConMan.requestVolumeIncrease();
 			}
 			
 			protected function volDown_clickHandler(event:MouseEvent):void
 			{
-				if(!socketMan.ConnectionAchieved())
+				if(!mbConMan.ConnectionAchieved())
 					connect();
-				socketMan.send("DECREASEVOL\r\n");	
+				mbConMan.requestVolumeDecrease();
 			}
 			
 			protected function viewIntializer(event:FlexEvent):void
 			{
-				socketMan.addEventListener("socketData",socketDataAvailable);	
+				mbConMan.addEventListener("statusPlaying",statusPlayingHandler);
+				mbConMan.addEventListener("statusPaused",statusPausedHandler);
+				mbConMan.addEventListener("statusStopped",statusStoppedHandler);
+				mbConMan.addEventListener("volumeChanged",volumeChangedHandler);
 			}
 			protected function viewActivated(event:Event):void
 			{
 				connect();
 			}
 
-			private function socketDataAvailable(event:Event):void
-			{	
-				connectionLogWindow.text+=socketMan.ServerAnswer();
-				var volUpPattern:RegExp = /260.VOL.UP:(\d{1,2})\r\n/gm;
-				var volDownPattern:RegExp =/270.VOL.DOWN:(\d{1,2})\r\n/gm;
-				var volGetPattern:RegExp = /250.VOL.CUR:(\d{1,2})\r\n/gm;
-				var playStatePattern:RegExp = /230.PLAY.STATE:([A-Z]{7})\r\n/gm;
-				var removeOK:RegExp = /220.PLAYPAUSE.OK\r\n/gm;
-				var checkSongChange:RegExp = /300.SONGCHANGE:(.*)\r\n/gm;
-				var getSongData:RegExp = /400.NOW.PLAYING(.*)\r\n/gsm;
-				if(volUpPattern.test(socketMan.ServerAnswer()))
-					volumeIndicatorChange(socketMan.ServerAnswer().replace(volUpPattern,'$1'));
-				if(volDownPattern.test(socketMan.ServerAnswer()))
-					volumeIndicatorChange(socketMan.ServerAnswer().replace(volDownPattern,'$1'));
-				if(volGetPattern.test(socketMan.ServerAnswer()))
-					volumeIndicatorChange(socketMan.ServerAnswer().replace(volGetPattern,'$1'));
-				if (checkSongChange.test(socketMan.ServerAnswer())){
-					var answer:String = socketMan.ServerAnswer().replace(checkSongChange,'$1');
-					if (answer=="True")
-					{
-						socketMan.send("SENDSONGDATA\r\n");
-					}
-					}
-				if(getSongData.test(socketMan.ServerAnswer())){
-					var SongData:String = socketMan.ServerAnswer().replace(getSongData,'$1');
-					var songArray:Array = SongData.split('\n');
-					var i:int = 0;
-					artistName.text = songArray[++i];
-					artistTitle.text = songArray[++i];
-					artistAlbum.text = songArray[++i];
-					albumYear.text = songArray[++i];
-				}
-				if(playStatePattern.test(socketMan.ServerAnswer())){
-					var playState:String = socketMan.ServerAnswer().replace(playStatePattern,'$1');
-					playState=playState.replace(removeOK,"");
-					switch(playState){
-						case "PLAYING":
-							playButton.setStyle("icon", pauseIcon);
-							break;	
-						case "PAUSEDD":
-							playButton.setStyle("icon", playIcon);
-							break;
-						case "STOPPED":
-							playButton.setStyle("icon", playIcon);
-							break;
-						default:
-							break;
-					}
-				}
-				socketMan.AnswerClear();
-			}
-			private function volumeIndicatorChange(volumeData:String):void
-			{
-				volumeIndicator.text = (parseInt(volumeData)*10) + "%";
-			}
-		
-			
 			protected function viewDeactivateHandler(event:ViewNavigatorEvent):void
 			{
-				socketMan.disconnect();
+				mbConMan.disconnect();
 			}
 			
 			protected function checkChange_clickHandler(event:MouseEvent):void
 			{
+			}
+			protected function statusPlayingHandler(event:Event):void{
+				playButton.setStyle("icon", pauseIcon);
+			}
+			
+			protected function stopButton_clickHandler(event:MouseEvent):void
+			{
 				// TODO Auto-generated method stub
-				socketMan.send("ISSONGCHANGED\r\n");
+				
+			}
+			
+			protected function statusPausedHandler(event:Event):void
+			{
+				playButton.setStyle("icon", playIcon);
+			}
+			
+			protected function statusStoppedHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+			protected function volumeChangedHandler(event:Event):void
+			{
+				volumeIndicator.text = mbConMan.getVolume() + "%";
 			}
 			
 		]]>
@@ -155,30 +122,27 @@
 	<s:layout>
 		<s:BasicLayout/>
 	</s:layout>
-	<s:Button id="previousButton" x="143" y="318" width="125" height="125"
+	<s:Button id="previousButton" x="28" y="268" width="100" height="100"
 			  click="previousButton_clickHandler(event)" icon="@Embed('icons/skip_backward.png')"/>
-	<s:Button id="playButton" x="10" y="318" width="125" height="125" label="Play/Pause"
+	<s:Button id="playButton" x="136" y="268" width="100" height="100" label="Play/Pause"
 			  click="playButton_clickHandler(event)" enabled="true" icon="@Embed('icons/play.png')"/>
-	<s:Button id="nextButton" x="276" y="318" width="125" height="125" label="Next"
+	<s:Button id="nextButton" x="352" y="268" width="100" height="100" label="Next"
 			  click="nextButton_clickHandler(event)" icon="@Embed('icons/skip_forward.png')"/>
-	<s:TextArea id="connectionLogWindow" x="10" y="604" width="318" height="65" editable="false"
-				fontFamily="Courier New" fontSize="10" textAlign="left"/>
-	<s:Button id="volDown" x="410" y="78" width="60" height="60" label="-"
+	<s:Button id="volDown" x="386" y="110" width="60" height="60" label="-"
 			  click="volDown_clickHandler(event)" icon="@Embed('icons/volume_down.png')"/>
-	<s:Button id="volUp" x="412" y="10" width="60" height="60" label="+"
+	<s:Button id="volUp" x="386" y="42" width="60" height="60" label="+"
 			  click="volUp_clickHandler(event)" icon="@Embed('icons/volume_up.png')"/>
-	<s:Label id="volumeIndicator" x="318" y="55" width="95" height="48" fontFamily="Verdana"
-			 fontSize="30" text="Vol%" textAlign="center" verticalAlign="middle"/>
-	<s:Label x="317" y="10" height="37" text="Volume:" verticalAlign="middle"/>
-	<s:Button id="checkChange" x="336" y="604" label="IsChange"
-			  click="checkChange_clickHandler(event)"/>
-	<s:Image x="9" y="10" width="300" height="300"/>
-	<s:Label x="10" y="451" text="Artist:"/>
-	<s:Label x="9" y="481" text="Title:"/>
-	<s:Label x="10" y="512" text="Album:"/>
-	<s:Label x="10" y="543" text="Year:"/>
-	<s:Label id="artistName" x="95" y="451" width="376"/>
-	<s:Label id="artistTitle" x="95" y="481" width="375"/>
-	<s:Label id="artistAlbum" x="95" y="512" width="375"/>
-	<s:Label id="albumYear" x="95" y="543" width="375"/>
+	<s:Label id="volumeIndicator" x="386" y="178" width="66" height="48" fontFamily="Verdana"
+			 fontSize="25" text="Vol%" textAlign="center" verticalAlign="middle"/>
+	<s:Image id="coverImage" x="115" y="10" width="250" height="250"/>
+	<s:Label x="9" y="452" text="Artist:"/>
+	<s:Label x="8" y="482" text="Title:"/>
+	<s:Label x="9" y="513" text="Album:"/>
+	<s:Label x="9" y="544" text="Year:"/>
+	<s:Label id="artistName" x="94" y="452" width="376"/>
+	<s:Label id="artistTitle" x="94" y="482" width="375"/>
+	<s:Label id="artistAlbum" x="94" y="513" width="375"/>
+	<s:Label id="albumYear" x="94" y="544" width="375"/>
+	<s:Button id="stopButton" x="244" y="268" width="100" height="100"
+			  click="stopButton_clickHandler(event)" icon="@Embed('icons/stop.png')"/>
 </s:View>

@@ -1,14 +1,20 @@
 // ActionScript file
 package Network {
+	import Network.Protocol.AnswerHandler;
+	
 	import flash.events.*;
 	import flash.net.Socket;
 	
-	[Event(name="socketData", type="flash.events.Event")]
-	public class SocketManager extends EventDispatcher {
+	[Event(name="statusPlaying", type="flash.events.Event")]
+	[Event(name="statusPaused", type="flash.events.Event")]
+	[Event(name="statusStopped", type="flash.events.Event")]
+	[Event(name="volumeChanged", type="flash.events.Event")]
+	
+	public class ConnectionManager extends EventDispatcher {
 		private var socket:Socket;
 		private var _serverAnswer:String="";
+		private var answerHandle:AnswerHandler;
 
-		
 		public function ConnectionAchieved():Boolean{
 			if (socket.connected)
 				return true;
@@ -21,8 +27,9 @@ package Network {
 			_serverAnswer="";
 		}
 		
-		public function SocketManager(){
+		public function ConnectionManager(){
 			socket = new Socket();
+			answerHandle = new AnswerHandler();
 			configureListeners(socket);
 		}
 		public function connect(hostname:String,port:uint):void{
@@ -44,6 +51,29 @@ package Network {
 			dispatcher.addEventListener(ProgressEvent.PROGRESS, progressHandler);
 			dispatcher.addEventListener(ProgressEvent.SOCKET_DATA, onSocketData);
 			dispatcher.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
+			answerHandle.addEventListener("statusPlaying",statusPlayingHandler);
+			answerHandle.addEventListener("statusPaused",statusPausedHandler);
+			answerHandle.addEventListener("statusStopped",statusStoppedHandler);
+			answerHandle.addEventListener("volumeChanged",volumeChangedHandler);
+		}
+		
+		protected function volumeChangedHandler(event:Event):void
+		{
+			dispatchEvent(new Event("volumeChanged"));
+		}
+		
+		protected function statusStoppedHandler(event:Event):void
+		{
+			dispatchEvent(new Event("statusStopped"));
+		}
+		
+		protected function statusPausedHandler(event:Event):void
+		{
+			dispatchEvent(new Event("statusPaused"));
+		}
+		private function statusPlayingHandler(event:Event):void
+		{
+			dispatchEvent(new Event("statusPlaying"));
 		}
 		private function onSocketData(event:ProgressEvent):void
 		{
@@ -54,7 +84,8 @@ package Network {
 				_serverAnswer += socket.readUTFBytes(socket.bytesAvailable);
 				}
 			}
-			dispatchEvent(new Event('socketData'));
+			answerHandle.serverAnswerHandler(_serverAnswer);
+			AnswerClear();
 		}
 		private function closeHandler(event:Event):void {
 			trace("closeHandler: " + event);
@@ -78,6 +109,30 @@ package Network {
 		
 		private function securityErrorHandler(event:SecurityErrorEvent):void {
 			trace("securityErrorHandler: " + event);
+		}
+		public function requestPlayPause():void
+		{send("PLAYPAUSE\r\n");}
+		public function requestNextTrack():void
+		{send("NEXT\r\n");}
+		public function requestPreviousTrack():void
+		{send("PREVIOUS\r\n");}
+		public function requestPlayState():void
+		{send("GETPLAYSTATE\r\n");}
+		public function requestVolume():void
+		{send("GETVOL\r\n");}
+		public function requestVolumeIncrease():void
+		{send("INCREASEVOL\r\n");}
+		public function requestVolumeDecrease():void
+		{send("DECREASEVOL\r\n");}
+		public function requestSongChangedStatus():void
+		{send("ISSONGCHANGED\r\n");}
+		public function requestSongData():void
+		{send("SENDSONGDATA\r\n");}
+		public function requestSongCover():void
+		{send("SENDSONGCOVER\r\n");}
+		public function getVolume():int
+		{
+			return answerHandle.getVolume();
 		}
 	}
 }
