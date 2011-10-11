@@ -33,6 +33,7 @@
 				if(!mbConMan.ConnectionAchieved())
 					connect();
 				mbConMan.requestPreviousTrack();
+				mbConMan.requestSongChangedStatus();
 			}
 			
 			protected function playButton_clickHandler(event:MouseEvent):void
@@ -48,6 +49,7 @@
 				if(!mbConMan.ConnectionAchieved())
 					connect();
 				mbConMan.requestNextTrack();
+				mbConMan.requestSongChangedStatus();
 			}
 			
 			protected function volUp_clickHandler(event:MouseEvent):void
@@ -70,6 +72,8 @@
 				mbConMan.addEventListener("statusPaused",statusPausedHandler);
 				mbConMan.addEventListener("statusStopped",statusStoppedHandler);
 				mbConMan.addEventListener("volumeChanged",volumeChangedHandler);
+				mbConMan.addEventListener("newArtistDataAvailable",newArtistDataHandler);
+				mbConMan.addEventListener("albumCoverAvailable",albumCoverDataHandler);
 			}
 			protected function viewActivated(event:Event):void
 			{
@@ -91,7 +95,7 @@
 			protected function stopButton_clickHandler(event:MouseEvent):void
 			{
 				// TODO Auto-generated method stub
-				
+				mbConMan.requestSongCover();
 			}
 			
 			protected function statusPausedHandler(event:Event):void
@@ -108,6 +112,19 @@
 			protected function volumeChangedHandler(event:Event):void
 			{
 				volumeIndicator.text = mbConMan.getVolume() + "%";
+			}
+			
+			protected function newArtistDataHandler(event:Event):void
+			{
+				artistName.text = mbConMan.getTrackInfo().artist;
+				artistTitle.text = mbConMan.getTrackInfo().title;
+				artistAlbum.text = mbConMan.getTrackInfo().album;
+				albumYear.text = mbConMan.getTrackInfo().year;
+			}
+			
+			protected function albumCoverDataHandler(event:Event):void
+			{
+				coverImage.source=mbConMan.getAlbumCover();
 			}
 			
 		]]>
@@ -139,10 +156,13 @@
 	<s:Label x="8" y="482" text="Title:"/>
 	<s:Label x="9" y="513" text="Album:"/>
 	<s:Label x="9" y="544" text="Year:"/>
-	<s:Label id="artistName" x="94" y="452" width="376"/>
-	<s:Label id="artistTitle" x="94" y="482" width="375"/>
-	<s:Label id="artistAlbum" x="94" y="513" width="375"/>
-	<s:Label id="albumYear" x="94" y="544" width="375"/>
+	<s:Label id="artistName" x="94" y="452" width="376" height="23" fontFamily="Verdana"
+			 fontSize="20"/>
+	<s:Label id="artistTitle" x="94" y="482" width="375" height="23" fontFamily="Verdana"
+			 fontSize="20"/>
+	<s:Label id="artistAlbum" x="94" y="513" width="375" height="23" fontFamily="Verdana"
+			 fontSize="20"/>
+	<s:Label id="albumYear" x="94" y="544" width="375" height="23" fontFamily="Verdana" fontSize="20"/>
 	<s:Button id="stopButton" x="244" y="268" width="100" height="100"
 			  click="stopButton_clickHandler(event)" icon="@Embed('icons/stop.png')"/>
 </s:View>

@@ -1,14 +1,19 @@
 // ActionScript file
 package Network {
+	import Data.TrackInfo;
+	
 	import Network.Protocol.AnswerHandler;
 	
 	import flash.events.*;
 	import flash.net.Socket;
+	import flash.utils.ByteArray;
 	
 	[Event(name="statusPlaying", type="flash.events.Event")]
 	[Event(name="statusPaused", type="flash.events.Event")]
 	[Event(name="statusStopped", type="flash.events.Event")]
 	[Event(name="volumeChanged", type="flash.events.Event")]
+	[Event(name="newArtistDataAvailable", type="flash.events.Event")]
+	[Event(name="albumCoverAvailable", type="flash.events.Event")]
 	
 	public class ConnectionManager extends EventDispatcher {
 		private var socket:Socket;
@@ -55,6 +60,25 @@ package Network {
 			answerHandle.addEventListener("statusPaused",statusPausedHandler);
 			answerHandle.addEventListener("statusStopped",statusStoppedHandler);
 			answerHandle.addEventListener("volumeChanged",volumeChangedHandler);
+			answerHandle.addEventListener("SendSongData",requestSongDataHandler);
+			answerHandle.addEventListener("newArtistDataAvailable",newArtistDataHandler);
+			answerHandle.addEventListener("albumCoverAvailable",albumCoverDataHandler);
+		}
+		
+		protected function albumCoverDataHandler(event:Event):void
+		{
+			dispatchEvent(new Event("albumCoverAvailable"));
+			
+		}
+		
+		protected function newArtistDataHandler(event:Event):void
+		{
+			dispatchEvent(new Event("newArtistDataAvailable"));
+		}
+		
+		protected function requestSongDataHandler(event:Event):void
+		{
+			requestSongData();	
 		}
 		
 		protected function volumeChangedHandler(event:Event):void
@@ -133,6 +157,14 @@ package Network {
 		public function getVolume():int
 		{
 			return answerHandle.getVolume();
+		}
+		public function getTrackInfo():TrackInfo
+		{
+			return answerHandle.trackInfo;
+		}
+		public function getAlbumCover():ByteArray
+		{
+			return answerHandle.coverDataHandler();
 		}
 	}
 }
