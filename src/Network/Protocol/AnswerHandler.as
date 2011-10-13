@@ -53,81 +53,85 @@ package Network.Protocol
 			var i:int;
 			for (i=0; i<AnswerArray.length; i++)
 			{
-				/*Handles the volume related answers. The answers include the current volume.*/
-				if(volUpPattern.test(AnswerArray[i]))
-					volumeAnswerHandler(AnswerArray[i].replace(volUpPattern,'$1'));
-				if(volDownPattern.test(AnswerArray[i]))
-					volumeAnswerHandler(AnswerArray[i].replace(volDownPattern,'$1'));
-				if(volGetPattern.test(AnswerArray[i]))
-					volumeAnswerHandler(AnswerArray[i].replace(volGetPattern,'$1'));
-				/*Handles the Currently playing track information*/
-				if(getSongData.test(AnswerArray[i])){
-					var SongData:String = AnswerArray[i].replace(getSongData,'$1');
-					var songArray:Array = SongData.split('\n');
-					artistDataHandler(songArray);
-				}
-				/*Handles the answer to the song change Command. If the answer is true requests the song data. */
-				if (checkSongChange.test(AnswerArray[i])){
-					var answer:String = AnswerArray[i].replace(checkSongChange,'$1');
-					if (answer=="True")
-					{
-						/*Due to the way the server answers if the event is dispatched immediately it sends the previous track data.
-						For this reason a timer is added to delay the data request.*/
-						var songDataRequestDelay:Timer = new Timer(500,1);
-						songDataRequestDelay.addEventListener(TimerEvent.TIMER_COMPLETE,dispatchSendSongData);
-						songDataRequestDelay.start();		
+				if (AnswerArray[i]!=null){
+					/*Handles the volume related answers. The answers include the current volume.*/
+					if(volUpPattern.test(AnswerArray[i]))
+						volumeAnswerHandler(AnswerArray[i].replace(volUpPattern,'$1'));
+					if(volDownPattern.test(AnswerArray[i]))
+						volumeAnswerHandler(AnswerArray[i].replace(volDownPattern,'$1'));
+					if(volGetPattern.test(AnswerArray[i]))
+						volumeAnswerHandler(AnswerArray[i].replace(volGetPattern,'$1'));
+					/*Handles the Currently playing track information*/
+					if(getSongData.test(AnswerArray[i])){
+						var SongData:String = AnswerArray[i].replace(getSongData,'$1');
+						var songArray:Array = SongData.split('\n');
+						artistDataHandler(songArray);
 					}
-				}
-				/*Handles the playstate replated answers */
-				if(playStatePattern.test(AnswerArray[i])){
-					var playState:String = AnswerArray[i].replace(playStatePattern,'$1');
-					playState=playState.replace(removeOK,"");
-					switch(playState){
-						case "PLAYING":
-							dispatchEvent(new Event('statusPlaying'));
-							break;	
-						case "PAUSEDD":
-							dispatchEvent(new Event('statusPaused'));
-							break;
-						case "STOPPED":
-							dispatchEvent(new Event('statusStopped'));
-							break;
-						default:
-							break;
-					}
-				}
-				if(imageDataHeader.test(AnswerArray[i])){
-					imageDataFlag=true;
-					imageData=null;
-				}
-				if(imageDataFlag)
-				{
-					if(imageDataFooter.test(AnswerArray[i]))
-					{
-						if(imageData==null)
+					/*Handles the answer to the song change Command. If the answer is true requests the song data. */
+					if (checkSongChange.test(AnswerArray[i])){
+						var answer:String = AnswerArray[i].replace(checkSongChange,'$1');
+						if (answer=="True")
 						{
-							imageData=AnswerArray[i];
-						}else{
-							imageData+=AnswerArray[i];
+							/*Due to the way the server answers if the event is dispatched immediately it sends the previous track data.
+							For this reason a timer is added to delay the data request.*/
+							var songDataRequestDelay:Timer = new Timer(500,1);
+							songDataRequestDelay.addEventListener(TimerEvent.TIMER_COMPLETE,dispatchSendSongData);
+							songDataRequestDelay.start();		
 						}
-						imageDataFlag=false;
 					}
-					else
+					/*Handles the playstate replated answers */
+					if(playStatePattern.test(AnswerArray[i])){
+						var playState:String = AnswerArray[i].replace(playStatePattern,'$1');
+						playState=playState.replace(removeOK,"");
+						switch(playState){
+							case "PLAYING":
+								dispatchEvent(new Event('statusPlaying'));
+								break;	
+							case "PAUSEDD":
+								dispatchEvent(new Event('statusPaused'));
+								break;
+							case "STOPPED":
+								dispatchEvent(new Event('statusStopped'));
+								break;
+							default:
+								break;
+						}
+					}
+					if(imageDataHeader.test(AnswerArray[i])){
+						imageDataFlag=true;
+						imageData=null;
+					}
+					if(imageDataFlag)
 					{
-						if(imageData==null)
+						if(imageDataHeader.test(AnswerArray[i]))
+							break;
+						if(imageDataFooter.test(AnswerArray[i]))
 						{
-							imageData=AnswerArray[i];
+							if(imageData==null)
+							{
+								imageData=AnswerArray[i];
+							}else{
+								imageData+=AnswerArray[i];
+							}
+							imageDataFlag=false;
 						}
 						else
 						{
-							imageData+=AnswerArray[i];
+							if(imageData==null)
+							{
+								imageData=AnswerArray[i];
+							}
+							else
+							{
+								imageData+=AnswerArray[i];
+							}
+							break;
 						}
-						break;
+						
+						imageData= imageData.replace(imageDataFooter,"");
+						imageData= imageData.replace(imageDataHeader,"");
+						dispatchEvent(new Event("albumCoverAvailable"));
 					}
-
-					imageData= imageData.replace(imageDataFooter,"");
-					imageData= imageData.replace(imageDataHeader,"");
-					dispatchEvent(new Event("albumCoverAvailable"));
 				}
 			}
 		}

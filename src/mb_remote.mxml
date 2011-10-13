@@ -11,6 +11,7 @@
 	<s:navigationContent>
 		<s:Button icon="@Embed('icons/home.png')" click="navigator.popToFirstView()"/>
 		<s:Button icon="@Embed('icons/tools.png')" click="navigator.pushView(views.mb_remoteSettingsView)"/>
+		<s:Button />
 	</s:navigationContent>
 	<fx:Style source="mb_remote.css"/>
 	<fx:Declarations>
