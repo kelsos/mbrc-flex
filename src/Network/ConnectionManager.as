@@ -5,8 +5,9 @@ package Network {
 	import Network.Protocol.AnswerHandler;
 	
 	import flash.events.*;
-	import flash.net.Socket;
+	import flash.net.XMLSocket;
 	import flash.utils.ByteArray;
+	import flash.xml.XMLNode;
 	
 	[Event(name="statusPlaying", type="flash.events.Event")]
 	[Event(name="statusPaused", type="flash.events.Event")]
@@ -16,12 +17,12 @@ package Network {
 	[Event(name="albumCoverAvailable", type="flash.events.Event")]
 	
 	public class ConnectionManager extends EventDispatcher {
-		private var socket:Socket;
+		private var xmlSocket:XMLSocket;
 		private var _serverAnswer:String="";
 		private var answerHandle:AnswerHandler;
 
 		public function ConnectionAchieved():Boolean{
-			if (socket.connected)
+			if (xmlSocket.connected)
 				return true;
 			return false;
 		}
@@ -33,20 +34,20 @@ package Network {
 		}
 		
 		public function ConnectionManager(){
-			socket = new Socket();
+			xmlSocket = new XMLSocket();
 			answerHandle = new AnswerHandler();
-			configureListeners(socket);
+			configureListeners(xmlSocket);
 		}
 		public function connect(hostname:String,port:uint):void{
-			if (!socket.connected)
-				socket.connect(hostname,port);
+			if (!xmlSocket.connected)
+				xmlSocket.connect(hostname,port);
 		}
-		public function send(data:String):void {
-			socket.writeUTFBytes(data);
+		public function send(data:Object):void {
+			xmlSocket.send(data);
 		}
 		
 		public function disconnect():void {
-			socket.close();
+			xmlSocket.close();
 		}
 		private function configureListeners(dispatcher:IEventDispatcher):void {
 			dispatcher.addEventListener(Event.CLOSE, closeHandler);
@@ -54,8 +55,8 @@ package Network {
 			dispatcher.addEventListener(DataEvent.DATA, dataHandler);
 			dispatcher.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
 			dispatcher.addEventListener(ProgressEvent.PROGRESS, progressHandler);
-			dispatcher.addEventListener(ProgressEvent.SOCKET_DATA, onSocketData);
 			dispatcher.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
+			/*Protocol handlers-middleware*/ 
 			answerHandle.addEventListener("statusPlaying",statusPlayingHandler);
 			answerHandle.addEventListener("statusPaused",statusPausedHandler);
 			answerHandle.addEventListener("statusStopped",statusStoppedHandler);
@@ -99,28 +100,17 @@ package Network {
 		{
 			dispatchEvent(new Event("statusPlaying"));
 		}
-		private function onSocketData(event:ProgressEvent):void
-		{
-			while(socket.bytesAvailable){
-				if(_serverAnswer==null){
-					_serverAnswer = socket.readUTFBytes(socket.bytesAvailable);
-				}else{
-				_serverAnswer += socket.readUTFBytes(socket.bytesAvailable);
-				}
-			}
-			answerHandle.serverAnswerHandler(_serverAnswer);
-			AnswerClear();
-		}
 		private function closeHandler(event:Event):void {
 			trace("closeHandler: " + event);
 		}
 		
 		private function connectHandler(event:Event):void {
-			trace("connectHandler: " + event);
+			trace("connectHandler: " + event); 
 		}
 		
 		private function dataHandler(event:DataEvent):void {
-			trace("dataHandler: " + event);
+			var xml:XML= new XML(event.data);
+			answerHandle.serverAnswerHandler(xml);
 		}
 		
 		private function ioErrorHandler(event:IOErrorEvent):void {
@@ -135,25 +125,26 @@ package Network {
 			trace("securityErrorHandler: " + event);
 		}
 		public function requestPlayPause():void
-		{send("PLAYPAUSE\r\n");}
+		{send("PLAYPAUSE\0");
+			send("\r\n");}
 		public function requestNextTrack():void
-		{send("NEXT\r\n");}
+		{send("NEXT\0");send("\r\n");}
 		public function requestPreviousTrack():void
-		{send("PREVIOUS\r\n");}
+		{send("PREVIOUS\0");send("\r\n");}
 		public function requestPlayState():void
-		{send("GETPLAYSTATE\r\n");}
+		{send("GETPLAYSTATE\0");send("\r\n");}
 		public function requestVolume():void
-		{send("GETVOL\r\n");}
+		{send("GETVOL\0");send("\r\n");}
 		public function requestVolumeIncrease():void
-		{send("INCREASEVOL\r\n");}
+		{send("INCREASEVOL\0");send("\r\n");}
 		public function requestVolumeDecrease():void
-		{send("DECREASEVOL\r\n");}
+		{send("DECREASEVOL\0");send("\r\n");}
 		public function requestSongChangedStatus():void
-		{send("ISSONGCHANGED\r\n");}
+		{send("ISSONGCHANGED\0");send("\r\n");}
 		public function requestSongData():void
-		{send("SENDSONGDATA\r\n");}
+		{send("SENDSONGDATA\0");send("\r\n");}
 		public function requestSongCover():void
-		{send("SENDSONGCOVER\r\n");}
+		{send("SENDSONGCOVER\0");send("\r\n");}
 		public function getVolume():int
 		{
 			return answerHandle.getVolume();

@@ -34,108 +34,55 @@ package Network.Protocol
 		 * @param serverAnswer
 		 * 
 		 */
-		public function serverAnswerHandler(serverAnswer:String):void{
-			
-			var socketAnswerData:String = serverAnswer;
-			var AnswerArray:Array = serverAnswer.split("\r\n");
-			
-			var volUpPattern:RegExp = /260.VOL.UP:([01]?[0-9])/gm;
-			var volDownPattern:RegExp =/270.VOL.DOWN:([01]?[0-9])/gm;
-			var volGetPattern:RegExp = /250.VOL.CUR:([01]?[0-9])/gm;
-			var playStatePattern:RegExp = /230.PLAY.STATE:([A-Z]{7})/gm;
-			var removeOK:RegExp = /220.PLAYPAUSE.OK/gm;
-			var checkSongChange:RegExp = /300.SONGCHANGE:(.*)/gm;
-			var getSongData:RegExp = /400.NOW.PLAYING\n(.*)/gsm;
-			
-			var imageDataHeader:RegExp = /410.IMAGE.COVER/gm;
-			var imageDataFooter:RegExp = /\n411.IMAGE.COVER.END/gm;
-			
-			var i:int;
-			for (i=0; i<AnswerArray.length; i++)
+		public function serverAnswerHandler(serverAnswer:XML):void{
+			/*Handles the playstate replated answers */
+			if (serverAnswer.name()=="playState")
 			{
-				if (AnswerArray[i]!=null){
-					/*Handles the volume related answers. The answers include the current volume.*/
-					if(volUpPattern.test(AnswerArray[i]))
-						volumeAnswerHandler(AnswerArray[i].replace(volUpPattern,'$1'));
-					if(volDownPattern.test(AnswerArray[i]))
-						volumeAnswerHandler(AnswerArray[i].replace(volDownPattern,'$1'));
-					if(volGetPattern.test(AnswerArray[i]))
-						volumeAnswerHandler(AnswerArray[i].replace(volGetPattern,'$1'));
-					/*Handles the Currently playing track information*/
-					if(getSongData.test(AnswerArray[i])){
-						var SongData:String = AnswerArray[i].replace(getSongData,'$1');
-						var songArray:Array = SongData.split('\n');
-						artistDataHandler(songArray);
-					}
-					/*Handles the answer to the song change Command. If the answer is true requests the song data. */
-					if (checkSongChange.test(AnswerArray[i])){
-						var answer:String = AnswerArray[i].replace(checkSongChange,'$1');
-						if (answer=="True")
-						{
-							/*Due to the way the server answers if the event is dispatched immediately it sends the previous track data.
-							For this reason a timer is added to delay the data request.*/
-							var songDataRequestDelay:Timer = new Timer(500,1);
-							songDataRequestDelay.addEventListener(TimerEvent.TIMER_COMPLETE,dispatchSendSongData);
-							songDataRequestDelay.start();		
-						}
-					}
-					/*Handles the playstate replated answers */
-					if(playStatePattern.test(AnswerArray[i])){
-						var playState:String = AnswerArray[i].replace(playStatePattern,'$1');
-						playState=playState.replace(removeOK,"");
-						switch(playState){
-							case "PLAYING":
-								dispatchEvent(new Event('statusPlaying'));
-								break;	
-							case "PAUSEDD":
-								dispatchEvent(new Event('statusPaused'));
-								break;
-							case "STOPPED":
-								dispatchEvent(new Event('statusStopped'));
-								break;
-							default:
-								break;
-						}
-					}
-					if(imageDataHeader.test(AnswerArray[i])){
-						imageDataFlag=true;
-						imageData=null;
-					}
-					if(imageDataFlag)
-					{
-						if(imageDataHeader.test(AnswerArray[i]))
-							break;
-						if(imageDataFooter.test(AnswerArray[i]))
-						{
-							if(imageData==null)
-							{
-								imageData=AnswerArray[i];
-							}else{
-								imageData+=AnswerArray[i];
-							}
-							imageDataFlag=false;
-						}
-						else
-						{
-							if(imageData==null)
-							{
-								imageData=AnswerArray[i];
-							}
-							else
-							{
-								imageData+=AnswerArray[i];
-							}
-							break;
-						}
-						
-						imageData= imageData.replace(imageDataFooter,"");
-						imageData= imageData.replace(imageDataHeader,"");
-						dispatchEvent(new Event("albumCoverAvailable"));
-					}
+				switch(serverAnswer.text().toString()){
+					case "PLAYING":
+						dispatchEvent(new Event('statusPlaying'));
+						break;	
+					case "PAUSEDD":
+						dispatchEvent(new Event('statusPaused'));
+						break;
+					case "STOPPED":
+						dispatchEvent(new Event('statusStopped'));
+						break;
+					default:
+						break;
 				}
 			}
+			/*Handles the volume related answers. The answers include the current volume.*/
+			if(serverAnswer.name()=="currentVolume"||serverAnswer.name()=="increasedVolume"||serverAnswer.name()=="decreasedVolume")
+				volumeAnswerHandler(serverAnswer.text().toString());
+			/*Handles the answer to the song change Command. If the answer is true requests the song data. */
+			if(serverAnswer.name()=="songChanged")
+			{
+				if(serverAnswer.text().toString()=="True")
+				{
+					var songDataRequestDelay:Timer = new Timer(500,1);
+					songDataRequestDelay.addEventListener(TimerEvent.TIMER_COMPLETE,dispatchSendSongData);
+					songDataRequestDelay.start();
+				}
+			}
+			if(serverAnswer.name()=="songInfo")
+			{
+				var count:int=0;
+				var tagArray:Array = new Array(4);
+				for each (var tag:XML in serverAnswer.children())
+				{
+					tagArray[count++]=tag.text().toString();
+				}
+				 artistDataHandler(tagArray);
+			}
+			/*Handles the image data*/
+			if(serverAnswer.name()=="image")
+			{
+				imageData=serverAnswer.text().toString();
+				dispatchEvent(new Event("albumCoverAvailable"));
+			}
 		}
-		
+				
 		protected function dispatchSendSongData(event:TimerEvent):void
 		{
 			dispatchEvent(new Event("SendSongData"));
