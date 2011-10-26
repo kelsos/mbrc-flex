@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:View xmlns:fx="http://ns.adobe.com/mxml/2009"
 		xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:supportClasses="spark.skins.mobile.supportClasses.*"
 		activate="viewActivated(event)" creationComplete="viewIntializer(event)" currentState="Home"
 		title="Home" viewDeactivate="viewDeactivateHandler(event)">
-
-	
+	<s:layout>
+		<s:BasicLayout/>
+	</s:layout>
 	<fx:Script>
 		<![CDATA[
 			import Network.*;
@@ -17,10 +19,12 @@
 
 			private var p:PersistenceManager = new PersistenceManager();
 			private var mbConMan:ConnectionManager = new ConnectionManager();
+			
+			private var poller:Timer = new Timer(3000,0);
 				
-			[Embed(source='icons/play.png')]
+			[Embed(source='icons/MD-play.png')]
 			private static var playIcon:Class;
-			[Embed(source='icons/pause.png')]
+			[Embed(source='icons/MD-pause.png')]
 			private static var pauseIcon:Class;
 
 			private function connect():void
@@ -74,10 +78,12 @@
 				mbConMan.addEventListener("volumeChanged",volumeChangedHandler);
 				mbConMan.addEventListener("newArtistDataAvailable",newArtistDataHandler);
 				mbConMan.addEventListener("albumCoverAvailable",albumCoverDataHandler);
+				poller.addEventListener(TimerEvent.TIMER, songChangePolling);
 			}
 			protected function viewActivated(event:Event):void
 			{
 				connect();
+				poller.start();
 			}
 
 			protected function viewDeactivateHandler(event:ViewNavigatorEvent):void
@@ -95,7 +101,8 @@
 			protected function stopButton_clickHandler(event:MouseEvent):void
 			{
 				// TODO Auto-generated method stub
-				mbConMan.requestSongCover();
+				mbConMan.requestPlaybackTermination();
+				mbConMan.requestPlayState();
 			}
 			
 			protected function statusPausedHandler(event:Event):void
@@ -106,6 +113,7 @@
 			protected function statusStoppedHandler(event:Event):void
 			{
 				// TODO Auto-generated method stub
+				playButton.setStyle("icon", playIcon);
 				
 			}
 			
@@ -127,39 +135,76 @@
 				coverImage.source=mbConMan.getAlbumCover();
 			}
 			
+			protected function songChangePolling(event:TimerEvent):void
+			{
+				mbConMan.requestSongChangedStatus();
+			}
+			
+			protected function buttonRepeat_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				mbConMan.requestChangeRepeatState();
+				
+			}
+			
+			protected function buttonShuffle_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				mbConMan.requestChangeShuffleState();
+				
+			}
+			
+			protected function buttonMute_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				mbConMan.requestChangeMuteState()
+				
+			}
+			
 		]]>
 	</fx:Script>
 	
 	<s:states>
 		<s:State name="Home"/>
+		<s:State name="Landscape"/>
 	</s:states>
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
-	<s:layout>
-		<s:BasicLayout/>
-	</s:layout>
-	<s:Button id="previousButton" x="28" y="304" width="100" height="100"
-			  click="previousButton_clickHandler(event)" icon="@Embed('icons/skip_backward.png')"/>
-	<s:Button id="playButton" x="136" y="305" width="100" height="100" label="Play/Pause"
-			  click="playButton_clickHandler(event)" enabled="true" icon="@Embed('icons/play.png')"/>
-	<s:Button id="nextButton" x="352" y="305" width="100" height="100" label="Next"
-			  click="nextButton_clickHandler(event)" icon="@Embed('icons/skip_forward.png')"/>
-	<s:Button id="volDown" x="392" y="144" width="60" height="60" label="-"
-			  click="volDown_clickHandler(event)" icon="@Embed('icons/volume_down.png')"/>
-	<s:Button id="volUp" x="392" y="76" width="60" height="60" label="+"
-			  click="volUp_clickHandler(event)" icon="@Embed('icons/volume_up.png')"/>
-	<s:Label id="volumeIndicator" x="392" y="212" width="60" height="48" fontFamily="Verdana"
+	<s:Button id="previousButton" x="10" y="475" width="100" height="100"
+			  click="previousButton_clickHandler(event)" icon="@Embed('icons/MD-previous.png')"/>
+	<s:Button id="playButton" x="130" y="474" width="100" height="100" label="Play/Pause"
+			  click="playButton_clickHandler(event)" enabled="true" icon="@Embed('icons/MD-play.png')"/>
+	<s:Button id="nextButton" x="370" y="474" width="100" height="100" label="Next"
+			  click="nextButton_clickHandler(event)" icon="@Embed('icons/MD-next.png')"/>
+	<s:Button id="volDown" x="410" y="105" width="60" height="60" label="-"
+			  click="volDown_clickHandler(event)" icon="@Embed('icons/MD-volume-down.png')"/>
+	<s:Button id="volUp" x="410" y="10" width="60" height="60" label="+"
+			  click="volUp_clickHandler(event)" icon="@Embed('icons/MD-volume-up.png')"/>
+	<s:Label id="volumeIndicator" x="402" y="198" width="68" height="60" fontFamily="Verdana"
 			 fontSize="24" text="Vol%" textAlign="center" verticalAlign="middle"/>
-	<s:Image id="coverImage" x="115" y="27" width="250" height="250"/>
-	<s:Label id="artistName" x="10" y="452" width="460" height="23" fontFamily="Verdana"
-			 fontSize="23" textAlign="center"/>
-	<s:Label id="artistTitle" x="10" y="482" width="459" height="23" fontFamily="Verdana"
-			 fontSize="23" textAlign="center"/>
-	<s:Label id="artistAlbum" x="9" y="513" width="460" height="23" fontFamily="Verdana"
-			 fontSize="23" textAlign="center"/>
-	<s:Label id="albumYear" x="10" y="544" width="459" height="23" fontFamily="Verdana" fontSize="23"
-			 textAlign="center"/>
-	<s:Button id="stopButton" x="244" y="304" width="100" height="100"
-			  click="stopButton_clickHandler(event)" icon="@Embed('icons/stop.png')"/>
+	<s:Image id="coverImage" x="115" y="10" width="250" height="250" scaleMode="letterbox"
+			 smooth="true" smoothingQuality="high"/>
+	<s:Label id="artistName" x="10" y="299" width="460" height="30" fontFamily="Verdana"
+			 fontSize="23" textAlign="center"
+			 x.Home="10" y.Home="306" height.Home="23" fontFamily.Home="_sans"/>
+	<s:Label id="artistTitle" x="11" y="337" width="459" height="23" fontFamily="Verdana"
+			 fontSize="23" textAlign="center"
+			 fontFamily.Home="_sans"/>
+	<s:Label id="artistAlbum" x="10" y="368" width="460" height="23" fontFamily="Verdana"
+			 fontSize="23" textAlign="center"
+			 fontFamily.Home="_sans"/>
+	<s:Label id="albumYear" x="11" y="399" width="459" height="23" fontFamily="Verdana" fontSize="23"
+			 textAlign="center"
+			 fontFamily.Home="_sans"/>
+	<s:Button id="stopButton" x="250" y="474" width="100" height="100"
+			  click="stopButton_clickHandler(event)" icon="@Embed('icons/MD-stop.png')"/>
+	<s:Button id="buttonRepeat" x="10" y="10" width="60" height="60" label="Repeat"
+			  click="buttonRepeat_clickHandler(event)" icon="@Embed('icons/MD-repeat-alt.png')"/>
+	<s:Button id="buttonMute" x="10" y="200" width="60" height="60" label="Mute"
+			  click="buttonMute_clickHandler(event)" icon="@Embed('icons/MD-volume-3.png')"/>
+	<s:Button id="buttonShuffle" x="10" y="105" width="60" height="60" label="Shuffle"
+			  click="buttonShuffle_clickHandler(event)" icon="@Embed('icons/MD-shuffle.png')"/>
+	<s:Label x="164" y="268" text="Playing Track:"
+			 x.Home="164" y.Home="268" fontFamily.Home="Arial"/>
 </s:View>

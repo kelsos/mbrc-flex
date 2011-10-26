@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:ViewNavigatorApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
 							xmlns:s="library://ns.adobe.com/flex/spark"
-							firstView="views.mb_remoteHomeView" splashScreenScaleMode="none">
+							firstView="views.mb_remoteHomeView"
+							splashScreenImage="@Embed('icons/MusicBee_Logo.png')"
+							splashScreenScaleMode="none" title="Remote Control for MusicBee">
 	<fx:Script>
 		<![CDATA[
+			import views.mb_remotePlaylistView;
 			import views.mb_remoteSettingsView;
 			
 		]]>
 	</fx:Script>
 	<s:navigationContent>
-		<s:Button icon="@Embed('icons/home.png')" click="navigator.popToFirstView()"/>
-		<s:Button icon="@Embed('icons/tools.png')" click="navigator.pushView(views.mb_remoteSettingsView)"/>
-		<s:Button />
+		<s:Button icon="@Embed('icons/home.png')" click="navigator.popToFirstView()" width="80%" height="80%"/>
+		<s:Button icon="@Embed('icons/list.png')" click="navigator.pushView(views.mb_remotePlaylistView)" />
+		<s:Button icon="@Embed('icons/settings.png')" click="navigator.pushView(views.mb_remoteSettingsView)" width="80%" height="80%"/>
 	</s:navigationContent>
 	<fx:Style source="mb_remote.css"/>
 	<fx:Declarations>

@@ -7,5 +7,5 @@
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
-	<s:List x="10" y="10" width="460" height="659"></s:List>
+	
 </s:View>

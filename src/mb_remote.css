@@ -7,3 +7,15 @@ global
 	content-background-alpha: 1.0;
 }
 	
+s|ActionBar
+{
+	chromeColor: #0099CC
+}
+s|View
+{
+	backgroundColor: #E6E8FA
+}
+s|TextInput
+{
+	color: #E0DFDB
+}

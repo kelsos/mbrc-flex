@@ -42,7 +42,7 @@ package Network {
 			if (!xmlSocket.connected)
 				xmlSocket.connect(hostname,port);
 		}
-		public function send(data:Object):void {
+		private function send(data:Object):void {
 			xmlSocket.send(data);
 		}
 		
@@ -79,7 +79,8 @@ package Network {
 		
 		protected function requestSongDataHandler(event:Event):void
 		{
-			requestSongData();	
+			requestSongData();
+			requestSongCover();
 		}
 		
 		protected function volumeChangedHandler(event:Event):void
@@ -125,26 +126,55 @@ package Network {
 			trace("securityErrorHandler: " + event);
 		}
 		public function requestPlayPause():void
-		{send("PLAYPAUSE\0");
-			send("\r\n");}
+		{
+			send("PLAYPAUSE\0");
+			send("\r\n");
+		}
 		public function requestNextTrack():void
-		{send("NEXT\0");send("\r\n");}
+		{
+			send("NEXT\0");
+			send("\r\n");
+		}
 		public function requestPreviousTrack():void
-		{send("PREVIOUS\0");send("\r\n");}
+		{
+			send("PREVIOUS\0");
+			send("\r\n");
+		}
 		public function requestPlayState():void
-		{send("GETPLAYSTATE\0");send("\r\n");}
+		{
+			send("GETPLAYSTATE\0");
+			send("\r\n");
+		}
 		public function requestVolume():void
-		{send("GETVOL\0");send("\r\n");}
+		{
+			send("GETVOL\0");
+			send("\r\n");
+		}
 		public function requestVolumeIncrease():void
-		{send("INCREASEVOL\0");send("\r\n");}
+		{
+			send("INCREASEVOL\0");
+			send("\r\n");
+		}
 		public function requestVolumeDecrease():void
-		{send("DECREASEVOL\0");send("\r\n");}
+		{
+			send("DECREASEVOL\0");
+			send("\r\n");
+		}
 		public function requestSongChangedStatus():void
-		{send("ISSONGCHANGED\0");send("\r\n");}
+		{
+			send("ISSONGCHANGED\0");
+			send("\r\n");
+		}
 		public function requestSongData():void
-		{send("SENDSONGDATA\0");send("\r\n");}
+		{
+			send("SENDSONGDATA\0");
+			send("\r\n");
+		}
 		public function requestSongCover():void
-		{send("SENDSONGCOVER\0");send("\r\n");}
+		{
+			send("SENDSONGCOVER\0");
+			send("\r\n");
+		}
 		public function getVolume():int
 		{
 			return answerHandle.getVolume();
@@ -156,6 +186,26 @@ package Network {
 		public function getAlbumCover():ByteArray
 		{
 			return answerHandle.coverDataHandler();
+		}
+		public function requestPlaybackTermination():void
+		{
+			send("STOPPLAYBACK\0");
+			send("\r\n");
+		}
+		public function requestChangeShuffleState():void
+		{
+			send("SHUFFLE\0");
+			send("\r\n");
+		}
+		public function requestChangeMuteState():void
+		{
+			send("MUTE\0");
+			send("\r\n");
+		}
+		public function requestChangeRepeatState():void
+		{
+			send("REPEAT\0");
+			send("\r\n");
 		}
 	}
 }

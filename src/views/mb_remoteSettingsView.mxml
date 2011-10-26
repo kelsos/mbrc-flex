@@ -31,4 +31,6 @@
 	<s:Label x="6" y="10" text="Server Address:"/>
 	<s:TextInput id="portNumber" x="351" y="41" width="119" change="portNumber_changeHandler(event)"/>
 	<s:Label x="351" y="10" text="Port:"/>
+	<s:TextArea x="10" y="474" width="460" height="195" editable="false" fontFamily="Courier New"
+				fontSize="18" text="Copyright 2011 (c) Paparas Konstantinos MusicBee Remote for Android"/>
 </s:View>
