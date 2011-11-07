@@ -27,9 +27,10 @@
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
 	<s:TextInput id="serverAddress" x="10" y="41" width="333"
-				 change="serverAddress_changeHandler(event)"/>
+				 change="serverAddress_changeHandler(event)" color="#000000"/>
 	<s:Label x="6" y="10" text="Server Address:"/>
-	<s:TextInput id="portNumber" x="351" y="41" width="119" change="portNumber_changeHandler(event)"/>
+	<s:TextInput id="portNumber" x="351" y="41" width="119" change="portNumber_changeHandler(event)"
+				 color="#000000"/>
 	<s:Label x="351" y="10" text="Port:"/>
 	<s:TextArea x="10" y="474" width="460" height="195" editable="false" fontFamily="Courier New"
 				fontSize="18" text="Copyright 2011 (c) Paparas Konstantinos MusicBee Remote for Android"/>

@@ -7,7 +7,11 @@ package Network {
 	import flash.events.*;
 	import flash.net.XMLSocket;
 	import flash.utils.ByteArray;
+	import flash.utils.Timer;
 	import flash.xml.XMLNode;
+	
+	import spark.components.Image;
+	import spark.managers.PersistenceManager;
 	
 	[Event(name="statusPlaying", type="flash.events.Event")]
 	[Event(name="statusPaused", type="flash.events.Event")]
@@ -15,16 +19,49 @@ package Network {
 	[Event(name="volumeChanged", type="flash.events.Event")]
 	[Event(name="newArtistDataAvailable", type="flash.events.Event")]
 	[Event(name="albumCoverAvailable", type="flash.events.Event")]
-	
+	[Event(name="ShuffleStatusChanged", type="flash.events.Event")]
 	public class ConnectionManager extends EventDispatcher {
 		private var xmlSocket:XMLSocket;
-		private var _serverAnswer:String="";
+		private var _serverAnswer:String;
 		private var answerHandle:AnswerHandler;
+		private static var _instance:ConnectionManager;
+		private var dataPoller:Timer;
+		private var p:PersistenceManager;
 
-		public function ConnectionAchieved():Boolean{
-			if (xmlSocket.connected)
-				return true;
-			return false;
+		public function ConnectionManager(enforcer:SingletonEnforcer){
+			if (enforcer==null)
+			{
+				throw new Error("No new Instances Of Connection Manager can be created");
+			}
+			else
+			{
+			xmlSocket = new XMLSocket();
+			_serverAnswer="";
+			answerHandle = new AnswerHandler();
+			configureListeners(xmlSocket);
+			dataPoller = new Timer(3000,0);
+			dataPoller.addEventListener(TimerEvent.TIMER,dataPollerTickHandler);
+			dataPoller.start();
+			p = new PersistenceManager();
+			connect();
+			}
+		}
+		
+		protected function dataPollerTickHandler(event:TimerEvent):void
+		{
+			connect();
+			requestPlayState();
+			requestSongChangedStatus();
+			requestVolume();
+		}
+		
+		public static function getInstance():ConnectionManager
+		{
+			if (_instance==null)
+			{
+				_instance = new ConnectionManager(new SingletonEnforcer());
+			}
+			return _instance;
 		}
 		public function ServerAnswer():String{
 			return _serverAnswer;
@@ -33,14 +70,9 @@ package Network {
 			_serverAnswer="";
 		}
 		
-		public function ConnectionManager(){
-			xmlSocket = new XMLSocket();
-			answerHandle = new AnswerHandler();
-			configureListeners(xmlSocket);
-		}
-		public function connect(hostname:String,port:uint):void{
+		public function connect():void{
 			if (!xmlSocket.connected)
-				xmlSocket.connect(hostname,port);
+				xmlSocket.connect(p.getProperty("serverAddress").toString(),parseInt(p.getProperty("serverPort").toString()));
 		}
 		private function send(data:Object):void {
 			xmlSocket.send(data);
@@ -64,12 +96,17 @@ package Network {
 			answerHandle.addEventListener("SendSongData",requestSongDataHandler);
 			answerHandle.addEventListener("newArtistDataAvailable",newArtistDataHandler);
 			answerHandle.addEventListener("albumCoverAvailable",albumCoverDataHandler);
+			answerHandle.addEventListener("ShuffleStatusChanged",shuffleStatusHandler);
+		}
+		
+		protected function shuffleStatusHandler(event:Event):void
+		{
+			dispatchEvent(new Event("ShuffleStatusChanged"));	
 		}
 		
 		protected function albumCoverDataHandler(event:Event):void
 		{
 			dispatchEvent(new Event("albumCoverAvailable"));
-			
 		}
 		
 		protected function newArtistDataHandler(event:Event):void
@@ -127,6 +164,7 @@ package Network {
 		}
 		public function requestPlayPause():void
 		{
+			connect();
 			send("PLAYPAUSE\0");
 			send("\r\n");
 		}
@@ -209,3 +247,4 @@ package Network {
 		}
 	}
 }
+class SingletonEnforcer {}

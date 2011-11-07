@@ -15,94 +15,71 @@
 			import mx.events.FlexEvent;
 			
 			import spark.events.ViewNavigatorEvent;
-			import spark.managers.PersistenceManager;
-
-			private var p:PersistenceManager = new PersistenceManager();
-			private var mbConMan:ConnectionManager = new ConnectionManager();
 			
-			private var poller:Timer = new Timer(3000,0);
 				
 			[Embed(source='icons/MD-play.png')]
 			private static var playIcon:Class;
 			[Embed(source='icons/MD-pause.png')]
 			private static var pauseIcon:Class;
 
-			private function connect():void
-			{
-				mbConMan.connect(p.getProperty("serverAddress").toString(),parseInt(p.getProperty("serverPort").toString()));
-			}
-			
 			protected function previousButton_clickHandler(event:MouseEvent):void
 			{
-				if(!mbConMan.ConnectionAchieved())
-					connect();
-				mbConMan.requestPreviousTrack();
-				mbConMan.requestSongChangedStatus();
+				ConnectionManager.getInstance().requestPreviousTrack();
+				ConnectionManager.getInstance().requestSongChangedStatus();
 			}
 			
 			protected function playButton_clickHandler(event:MouseEvent):void
 			{
-				if(!mbConMan.ConnectionAchieved())
-					connect();
-				mbConMan.requestPlayPause();
-				mbConMan.requestPlayState();
+				ConnectionManager.getInstance().requestPlayPause();
+				ConnectionManager.getInstance().requestPlayState();
 			}
 			
 			protected function nextButton_clickHandler(event:MouseEvent):void
 			{
-				if(!mbConMan.ConnectionAchieved())
-					connect();
-				mbConMan.requestNextTrack();
-				mbConMan.requestSongChangedStatus();
+				ConnectionManager.getInstance().requestNextTrack();
+				ConnectionManager.getInstance().requestSongChangedStatus();
 			}
 			
 			protected function volUp_clickHandler(event:MouseEvent):void
 			{
-				if(!mbConMan.ConnectionAchieved())
-					connect();
-				mbConMan.requestVolumeIncrease();
+				ConnectionManager.getInstance().requestVolumeIncrease();
 			}
 			
 			protected function volDown_clickHandler(event:MouseEvent):void
 			{
-				if(!mbConMan.ConnectionAchieved())
-					connect();
-				mbConMan.requestVolumeDecrease();
+				ConnectionManager.getInstance().requestVolumeDecrease();
 			}
-			
 			protected function viewIntializer(event:FlexEvent):void
 			{
-				mbConMan.addEventListener("statusPlaying",statusPlayingHandler);
-				mbConMan.addEventListener("statusPaused",statusPausedHandler);
-				mbConMan.addEventListener("statusStopped",statusStoppedHandler);
-				mbConMan.addEventListener("volumeChanged",volumeChangedHandler);
-				mbConMan.addEventListener("newArtistDataAvailable",newArtistDataHandler);
-				mbConMan.addEventListener("albumCoverAvailable",albumCoverDataHandler);
-				poller.addEventListener(TimerEvent.TIMER, songChangePolling);
+				ConnectionManager.getInstance().addEventListener("statusPlaying",statusPlayingHandler);
+				ConnectionManager.getInstance().addEventListener("statusPaused",statusPausedHandler);
+				ConnectionManager.getInstance().addEventListener("statusStopped",statusStoppedHandler);
+				ConnectionManager.getInstance().addEventListener("volumeChanged",volumeChangedHandler);
+				ConnectionManager.getInstance().addEventListener("newArtistDataAvailable",newArtistDataHandler);
+				ConnectionManager.getInstance().addEventListener("albumCoverAvailable",albumCoverDataHandler);
 			}
 			protected function viewActivated(event:Event):void
 			{
-				connect();
-				poller.start();
+				
 			}
 
 			protected function viewDeactivateHandler(event:ViewNavigatorEvent):void
 			{
-				mbConMan.disconnect();
+				ConnectionManager.getInstance().disconnect();
 			}
 			
 			protected function checkChange_clickHandler(event:MouseEvent):void
 			{
 			}
-			protected function statusPlayingHandler(event:Event):void{
+			protected function statusPlayingHandler(event:Event):void
+			{
 				playButton.setStyle("icon", pauseIcon);
 			}
 			
 			protected function stopButton_clickHandler(event:MouseEvent):void
 			{
-				// TODO Auto-generated method stub
-				mbConMan.requestPlaybackTermination();
-				mbConMan.requestPlayState();
+				ConnectionManager.getInstance().requestPlaybackTermination();
+				ConnectionManager.getInstance().requestPlayState();
 			}
 			
 			protected function statusPausedHandler(event:Event):void
@@ -112,53 +89,46 @@
 			
 			protected function statusStoppedHandler(event:Event):void
 			{
-				// TODO Auto-generated method stub
 				playButton.setStyle("icon", playIcon);
-				
 			}
 			
 			protected function volumeChangedHandler(event:Event):void
 			{
-				volumeIndicator.text = mbConMan.getVolume() + "%";
+				volumeIndicator.text = ConnectionManager.getInstance().getVolume() + "%";
 			}
 			
 			protected function newArtistDataHandler(event:Event):void
 			{
-				artistName.text = mbConMan.getTrackInfo().artist;
-				artistTitle.text = mbConMan.getTrackInfo().title;
-				artistAlbum.text = mbConMan.getTrackInfo().album;
-				albumYear.text = mbConMan.getTrackInfo().year;
+				artistName.text = ConnectionManager.getInstance().getTrackInfo().artist;
+				artistTitle.text = ConnectionManager.getInstance().getTrackInfo().title;
+				artistAlbum.text = ConnectionManager.getInstance().getTrackInfo().album;
+				albumYear.text = ConnectionManager.getInstance().getTrackInfo().year;
 			}
 			
 			protected function albumCoverDataHandler(event:Event):void
 			{
-				coverImage.source=mbConMan.getAlbumCover();
+				coverImage.source=ConnectionManager.getInstance().getAlbumCover();
 			}
 			
-			protected function songChangePolling(event:TimerEvent):void
+			protected function changePoller(event:TimerEvent):void
 			{
-				mbConMan.requestSongChangedStatus();
+				ConnectionManager.getInstance().requestSongChangedStatus();
+				ConnectionManager.getInstance().getVolume();
 			}
 			
 			protected function buttonRepeat_clickHandler(event:MouseEvent):void
 			{
-				// TODO Auto-generated method stub
-				mbConMan.requestChangeRepeatState();
-				
+				ConnectionManager.getInstance().requestChangeRepeatState();
 			}
 			
 			protected function buttonShuffle_clickHandler(event:MouseEvent):void
 			{
-				// TODO Auto-generated method stub
-				mbConMan.requestChangeShuffleState();
-				
+				ConnectionManager.getInstance().requestChangeShuffleState();
 			}
 			
 			protected function buttonMute_clickHandler(event:MouseEvent):void
 			{
-				// TODO Auto-generated method stub
-				mbConMan.requestChangeMuteState()
-				
+				ConnectionManager.getInstance().requestChangeMuteState()
 			}
 			
 		]]>
@@ -182,7 +152,8 @@
 	<s:Button id="volUp" x="410" y="10" width="60" height="60" label="+"
 			  click="volUp_clickHandler(event)" icon="@Embed('icons/MD-volume-up.png')"/>
 	<s:Label id="volumeIndicator" x="402" y="198" width="68" height="60" fontFamily="Verdana"
-			 fontSize="24" text="Vol%" textAlign="center" verticalAlign="middle"/>
+			 fontSize="24" text="Vol%" textAlign="center" verticalAlign="middle"
+			 text.Home="100%"/>
 	<s:Image id="coverImage" x="115" y="10" width="250" height="250" scaleMode="letterbox"
 			 smooth="true" smoothingQuality="high"/>
 	<s:Label id="artistName" x="10" y="299" width="460" height="30" fontFamily="Verdana"

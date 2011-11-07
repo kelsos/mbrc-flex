@@ -16,6 +16,7 @@ package Network.Protocol
 	[Event(name="SendSongData", type="flash.events.Event")]
 	[Event(name="newArtistDataAvailable", type="flash.events.Event")]
 	[Event(name="albumCoverAvailable", type="flash.events.Event")]
+	[Event(name="ShuffleStatusChanged", type="flash.events.Event")]
 	
 	//dispatchEvent(new Event('socketData'));
 	public class AnswerHandler extends EventDispatcher
@@ -24,6 +25,7 @@ package Network.Protocol
 		public var trackInfo:TrackInfo;
 		private var imageDataFlag:Boolean;
 		private var imageData:String;
+		private var shuffleStatus:Boolean;
 		public function AnswerHandler()
 		{
 			trackInfo = new TrackInfo();
@@ -81,6 +83,26 @@ package Network.Protocol
 				imageData=serverAnswer.text().toString();
 				dispatchEvent(new Event("albumCoverAvailable"));
 			}
+			if(serverAnswer.name()=="shuffle")
+			{
+				switch(serverAnswer.text().toString()){
+					case "True":
+						shuffleStatus=true;
+						break;
+					case "False":
+						shuffleStatus=false;
+						break;
+				}
+				dispatchEvent(new Event("ShuffleStatusChanged"));
+			}
+			if(serverAnswer.name()=="mute")
+			{
+				
+			}
+			if(serverAnswer.name()=="repeat")
+			{
+				
+			}
 		}
 				
 		protected function dispatchSendSongData(event:TimerEvent):void
@@ -114,6 +136,10 @@ package Network.Protocol
 			base64Dec.decode(imageData);
 			
 			return base64Dec.toByteArray();
+		}
+		public function getShuffleStatus():Boolean
+		{
+			return shuffleStatus;	
 		}
 	}
 }
