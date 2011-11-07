@@ -15,14 +15,6 @@ package Network {
 	import spark.components.Image;
 	import spark.managers.PersistenceManager;
 	
-	[Event(name="statusPlaying", type="flash.events.Event")]
-	[Event(name="statusPaused", type="flash.events.Event")]
-	[Event(name="statusStopped", type="flash.events.Event")]
-	[Event(name="volumeChanged", type="flash.events.Event")]
-	[Event(name="newArtistDataAvailable", type="flash.events.Event")]
-	[Event(name="albumCoverAvailable", type="flash.events.Event")]
-	[Event(name="ShuffleStatusChanged", type="flash.events.Event")]
-	[Event(name="playlistDataAvailable", type="flash.events.Event")]
 	public class ConnectionManager extends EventDispatcher {
 		private var xmlSocket:XMLSocket;
 		private var _serverAnswer:String;
@@ -40,7 +32,6 @@ package Network {
 			{
 			xmlSocket = new XMLSocket();
 			_serverAnswer="";
-			answerHandle = new AnswerHandler();
 			configureListeners(xmlSocket);
 			dataPoller = new Timer(3000,0);
 			dataPoller.addEventListener(TimerEvent.TIMER,dataPollerTickHandler);
@@ -66,16 +57,11 @@ package Network {
 			}
 			return _instance;
 		}
-		public function ServerAnswer():String{
-			return _serverAnswer;
-		}
-		public function AnswerClear():void{
-			_serverAnswer="";
-		}
-		
+
 		public function connect():void{
 			if (!xmlSocket.connected)
 				xmlSocket.connect(p.getProperty("serverAddress").toString(),parseInt(p.getProperty("serverPort").toString()));
+			requestSongData();
 		}
 		private function send(data:Object):void {
 			xmlSocket.send(data);
@@ -92,60 +78,12 @@ package Network {
 			dispatcher.addEventListener(ProgressEvent.PROGRESS, progressHandler);
 			dispatcher.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
 			/*Protocol handlers-middleware*/ 
-			answerHandle.addEventListener("statusPlaying",statusPlayingHandler);
-			answerHandle.addEventListener("statusPaused",statusPausedHandler);
-			answerHandle.addEventListener("statusStopped",statusStoppedHandler);
-			answerHandle.addEventListener("volumeChanged",volumeChangedHandler);
-			answerHandle.addEventListener("SendSongData",requestSongDataHandler);
-			answerHandle.addEventListener("newArtistDataAvailable",newArtistDataHandler);
-			answerHandle.addEventListener("albumCoverAvailable",albumCoverDataHandler);
-			answerHandle.addEventListener("ShuffleStatusChanged",shuffleStatusHandler);
-			answerHandle.addEventListener("playlistDataAvailable",playlistDataHandler);
+			AnswerHandler.getInstance().addEventListener("SendSongData",requestSongDataHandler)
 		}
-		
-		protected function playlistDataHandler(event:Event):void
-		{
-			dispatchEvent(new Event("playlistDataAvailable"));
-		}
-		
-		protected function shuffleStatusHandler(event:Event):void
-		{
-			dispatchEvent(new Event("ShuffleStatusChanged"));	
-		}
-		
-		protected function albumCoverDataHandler(event:Event):void
-		{
-			dispatchEvent(new Event("albumCoverAvailable"));
-		}
-		
-		protected function newArtistDataHandler(event:Event):void
-		{
-			dispatchEvent(new Event("newArtistDataAvailable"));
-		}
-		
 		protected function requestSongDataHandler(event:Event):void
 		{
 			requestSongData();
 			requestSongCover();
-		}
-		
-		protected function volumeChangedHandler(event:Event):void
-		{
-			dispatchEvent(new Event("volumeChanged"));
-		}
-		
-		protected function statusStoppedHandler(event:Event):void
-		{
-			dispatchEvent(new Event("statusStopped"));
-		}
-		
-		protected function statusPausedHandler(event:Event):void
-		{
-			dispatchEvent(new Event("statusPaused"));
-		}
-		private function statusPlayingHandler(event:Event):void
-		{
-			dispatchEvent(new Event("statusPlaying"));
 		}
 		private function closeHandler(event:Event):void {
 			trace("closeHandler: " + event);
@@ -157,7 +95,7 @@ package Network {
 		
 		private function dataHandler(event:DataEvent):void {
 			var xml:XML= new XML(event.data);
-			answerHandle.serverAnswerHandler(xml);
+			AnswerHandler.getInstance().serverAnswerHandler(xml);
 		}
 		
 		private function ioErrorHandler(event:IOErrorEvent):void {
@@ -222,18 +160,6 @@ package Network {
 			send("SENDSONGCOVER\0");
 			send("\r\n");
 		}
-		public function getVolume():int
-		{
-			return answerHandle.getVolume();
-		}
-		public function getTrackInfo():TrackInfo
-		{
-			return answerHandle.trackInfo;
-		}
-		public function getAlbumCover():ByteArray
-		{
-			return answerHandle.coverDataHandler();
-		}
 		public function requestPlaybackTermination():void
 		{
 			send("STOPPLAYBACK\0");
@@ -258,10 +184,6 @@ package Network {
 		{
 			send("PLAYLIST");
 			send("\r\n");
-		}
-		public function getPlaylistData():ArrayList
-		{
-			return answerHandle.getPlaylistData();
 		}
 	}
 }

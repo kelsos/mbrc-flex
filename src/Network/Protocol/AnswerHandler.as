@@ -19,6 +19,7 @@ package Network.Protocol
 	[Event(name="albumCoverAvailable", type="flash.events.Event")]
 	[Event(name="ShuffleStatusChanged", type="flash.events.Event")]
 	[Event(name="playlistDataAvailable", type="flash.events.Event")]
+	[Event(name="MuteStatusChanged", type="flash.events.Event")]
 	
 	//dispatchEvent(new Event('socketData'));
 	public class AnswerHandler extends EventDispatcher
@@ -26,12 +27,26 @@ package Network.Protocol
 		private var volumeData:int;
 		public var trackInfo:TrackInfo;
 		private var imageDataFlag:Boolean;
-		private var imageData:String;
+		private var imageData:ByteArray;
 		private var shuffleStatus:Boolean;
+		private var muteStatus:Boolean;
 		private var trackList:ArrayList; 
-		public function AnswerHandler()
+		private static var _instance:AnswerHandler;
+		public function AnswerHandler(enforcer:SingletonEnforcer)
 		{
+			if(enforcer==null)
+			{
+				throw new Error("No new Instances Of AnswerHandler can be created");
+			}
 			trackInfo = new TrackInfo();
+		}
+		public static function getInstance():AnswerHandler
+		{
+			if (_instance==null)
+			{
+				_instance = new AnswerHandler(new SingletonEnforcer());
+			}
+			return _instance;
 		}
 		/** Handles the server answers and takes actions depending on the type of the answer.
 		 * It is part of the application protocol. 
@@ -83,7 +98,7 @@ package Network.Protocol
 			/*Handles the image data*/
 			if(serverAnswer.name()=="image")
 			{
-				imageData=serverAnswer.text().toString();
+				imageData=coverDataHandler(serverAnswer.text().toString());
 				dispatchEvent(new Event("albumCoverAvailable"));
 			}
 			if(serverAnswer.name()=="shuffle")
@@ -100,7 +115,15 @@ package Network.Protocol
 			}
 			if(serverAnswer.name()=="mute")
 			{
-				
+				switch(serverAnswer.text().toString()){
+					case "True":
+						muteStatus=true;
+						break;
+					case "False":
+						muteStatus=false;
+						break;
+				}	
+				dispatchEvent(new Event("MuteStatusChanged"));
 			}
 			if(serverAnswer.name()=="repeat")
 			{
@@ -138,16 +161,20 @@ package Network.Protocol
 			trackInfo.year = artistData[i++];
 			dispatchEvent(new Event("newArtistDataAvailable"));
 		}
-		public function coverDataHandler():ByteArray
+		private function coverDataHandler(image:String):ByteArray
 		{
 			var base64Dec:Base64Decoder;
 			
 			var imageByteArray:ByteArray;
 			
 			base64Dec = new Base64Decoder();
-			base64Dec.decode(imageData);
+			base64Dec.decode(image);
 			
 			return base64Dec.toByteArray();
+		}
+		public function getCover():ByteArray
+		{
+			return imageData;
 		}
 		public function getShuffleStatus():Boolean
 		{
@@ -157,5 +184,10 @@ package Network.Protocol
 		{
 			return trackList;
 		}
+		public function getMuteStatus():Boolean
+		{
+			return muteStatus;
+		}
 	}
 }
+class SingletonEnforcer {}

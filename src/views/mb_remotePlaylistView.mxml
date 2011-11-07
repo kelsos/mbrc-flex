@@ -7,14 +7,17 @@
 	<fx:Script>
 		<![CDATA[
 			import Network.ConnectionManager;
+			import Network.Protocol.AnswerHandler;
+			
+			import spark.events.IndexChangeEvent;
 			private function viewActivateHandler():void
 			{
-				ConnectionManager.getInstance().addEventListener("playlistDataAvailable",playlistDataHandler);
+				AnswerHandler.getInstance().addEventListener("playlistDataAvailable",playlistDataHandler);
 				ConnectionManager.getInstance().requestPlaylist();
 			}
 			protected function playlistDataHandler(event:Event):void
 			{
-					playlistData.dataProvider=ConnectionManager.getInstance().getPlaylistData();
+					playlistData.dataProvider=AnswerHandler.getInstance().getPlaylistData();
 			}
 			
 			protected function button1_clickHandler(event:MouseEvent):void
@@ -23,11 +26,17 @@
 				ConnectionManager.getInstance().requestPlaylist();
 			}
 			
+			protected function playlistDatachangeHandler(event:IndexChangeEvent):void
+			{
+				
+			}
+			
 		]]>
 	</fx:Script>
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
-	<s:List id="playlistData" x="10" y="9" width="460" height="582"></s:List>
+	<s:List id="playlistData" x="10" y="9" width="460" height="582"
+			change="playlistDatachangeHandler(event)"></s:List>
 	<s:Button x="10" y="599" label="Button" click="button1_clickHandler(event)"/>
 </s:View>

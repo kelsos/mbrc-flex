@@ -10,6 +10,7 @@
 	<fx:Script>
 		<![CDATA[
 			import Network.*;
+			import Network.Protocol.AnswerHandler;
 			
 			import mx.events.DragEvent;
 			import mx.events.FlexEvent;
@@ -21,6 +22,14 @@
 			private static var playIcon:Class;
 			[Embed(source='icons/MD-pause.png')]
 			private static var pauseIcon:Class;
+			[Embed(source='icons/MD-shuffle-off.png')]
+			private static var shuffleOffIcon:Class;
+			[Embed(source='icons/MD-shuffle.png')]
+			private static var shuffleIcon:Class;
+			[Embed(source='icons/MD-volume-0-alt.png')]
+			private static var mutedIcon:Class;
+			[Embed(source='icons/MD-volume-3.png')]
+			private static var unMutedIcon:Class;
 
 			protected function previousButton_clickHandler(event:MouseEvent):void
 			{
@@ -51,16 +60,18 @@
 			}
 			protected function viewIntializer(event:FlexEvent):void
 			{
-				ConnectionManager.getInstance().addEventListener("statusPlaying",statusPlayingHandler);
-				ConnectionManager.getInstance().addEventListener("statusPaused",statusPausedHandler);
-				ConnectionManager.getInstance().addEventListener("statusStopped",statusStoppedHandler);
-				ConnectionManager.getInstance().addEventListener("volumeChanged",volumeChangedHandler);
-				ConnectionManager.getInstance().addEventListener("newArtistDataAvailable",newArtistDataHandler);
-				ConnectionManager.getInstance().addEventListener("albumCoverAvailable",albumCoverDataHandler);
+				AnswerHandler.getInstance().addEventListener("statusPlaying",statusPlayingHandler);
+				AnswerHandler.getInstance().addEventListener("statusPaused",statusPausedHandler);
+				AnswerHandler.getInstance().addEventListener("statusStopped",statusStoppedHandler);
+				AnswerHandler.getInstance().addEventListener("volumeChanged",volumeChangedHandler);
+				AnswerHandler.getInstance().addEventListener("newArtistDataAvailable",newArtistDataHandler);
+				AnswerHandler.getInstance().addEventListener("albumCoverAvailable",albumCoverDataHandler);
+				AnswerHandler.getInstance().addEventListener("ShuffleStatusChanged",shuffleStatusChangeHandler);
+				AnswerHandler.getInstance().addEventListener("MuteStatusChanged",muteStatusChangedHandler);
 			}
 			protected function viewActivated(event:Event):void
 			{
-				
+				ConnectionManager.getInstance();
 			}
 
 			protected function viewDeactivateHandler(event:ViewNavigatorEvent):void
@@ -94,26 +105,26 @@
 			
 			protected function volumeChangedHandler(event:Event):void
 			{
-				volumeIndicator.text = ConnectionManager.getInstance().getVolume() + "%";
+				volumeIndicator.text = AnswerHandler.getInstance().getVolume() + "%";
 			}
 			
 			protected function newArtistDataHandler(event:Event):void
 			{
-				artistName.text = ConnectionManager.getInstance().getTrackInfo().artist;
-				artistTitle.text = ConnectionManager.getInstance().getTrackInfo().title;
-				artistAlbum.text = ConnectionManager.getInstance().getTrackInfo().album;
-				albumYear.text = ConnectionManager.getInstance().getTrackInfo().year;
+				artistName.text = AnswerHandler.getInstance().trackInfo.artist;
+				artistTitle.text = AnswerHandler.getInstance().trackInfo.title;
+				artistAlbum.text = AnswerHandler.getInstance().trackInfo.album;
+				albumYear.text = AnswerHandler.getInstance().trackInfo.year;
 			}
 			
 			protected function albumCoverDataHandler(event:Event):void
 			{
-				coverImage.source=ConnectionManager.getInstance().getAlbumCover();
+				coverImage.source=AnswerHandler.getInstance().getCover()
 			}
 			
 			protected function changePoller(event:TimerEvent):void
 			{
 				ConnectionManager.getInstance().requestSongChangedStatus();
-				ConnectionManager.getInstance().getVolume();
+				AnswerHandler.getInstance().getVolume();
 			}
 			
 			protected function buttonRepeat_clickHandler(event:MouseEvent):void
@@ -131,6 +142,30 @@
 				ConnectionManager.getInstance().requestChangeMuteState()
 			}
 			
+			
+			protected function shuffleStatusChangeHandler(event:Event):void
+			{
+				if(AnswerHandler.getInstance().getShuffleStatus())
+				{
+					buttonShuffle.setStyle("icon", shuffleIcon);
+				}
+				else
+				{
+					buttonShuffle.setStyle("icon", shuffleOffIcon);
+				}
+			}
+			
+			protected function muteStatusChangedHandler(event:Event):void
+			{
+				if(AnswerHandler.getInstance().getMuteStatus())
+				{
+					buttonMute.setStyle("icon", mutedIcon);
+				}
+				else
+				{
+					buttonMute.setStyle("icon",unMutedIcon);
+				}
+			}
 			
 		]]>
 	</fx:Script>
@@ -156,7 +191,7 @@
 			 fontSize="24" text="Vol%" textAlign="center" verticalAlign="middle"
 			 text.Home="100%"/>
 	<s:Image id="coverImage" x="115" y="10" width="250" height="250" scaleMode="letterbox"
-			 smooth="true" smoothingQuality="high"/>
+			 smooth.Home="true" smoothingQuality.Home="high"/>
 	<s:Label id="artistName" x="10" y="299" width="460" height="30" fontFamily="Verdana"
 			 fontSize="23" textAlign="center"
 			 x.Home="10" y.Home="306" height.Home="23" fontFamily.Home="_sans"/>
