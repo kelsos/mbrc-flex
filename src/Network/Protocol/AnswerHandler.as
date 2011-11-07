@@ -20,18 +20,22 @@ package Network.Protocol
 	[Event(name="ShuffleStatusChanged", type="flash.events.Event")]
 	[Event(name="playlistDataAvailable", type="flash.events.Event")]
 	[Event(name="MuteStatusChanged", type="flash.events.Event")]
+	[Event(name="repeatStatusChanged", type="flash.events.Event")]
 	
 	//dispatchEvent(new Event('socketData'));
 	public class AnswerHandler extends EventDispatcher
 	{
-		private var volumeData:int;
 		public var trackInfo:TrackInfo;
+		/*private variables*/
+		private var volumeData:int;
 		private var imageDataFlag:Boolean;
 		private var imageData:ByteArray;
 		private var shuffleStatus:Boolean;
 		private var muteStatus:Boolean;
+		private var repeatStatus:Boolean;
 		private var trackList:ArrayList; 
 		private static var _instance:AnswerHandler;
+		
 		public function AnswerHandler(enforcer:SingletonEnforcer)
 		{
 			if(enforcer==null)
@@ -59,13 +63,13 @@ package Network.Protocol
 			if (serverAnswer.name()=="playState")
 			{
 				switch(serverAnswer.text().toString()){
-					case "PLAYING":
+					case "playing":
 						dispatchEvent(new Event('statusPlaying'));
 						break;	
-					case "PAUSEDD":
+					case "paused":
 						dispatchEvent(new Event('statusPaused'));
 						break;
-					case "STOPPED":
+					case "stopped":
 						dispatchEvent(new Event('statusStopped'));
 						break;
 					default:
@@ -85,6 +89,7 @@ package Network.Protocol
 					songDataRequestDelay.start();
 				}
 			}
+			/*Handles the SongInfo*/
 			if(serverAnswer.name()=="songInfo")
 			{
 				var count:int=0;
@@ -101,6 +106,7 @@ package Network.Protocol
 				imageData=coverDataHandler(serverAnswer.text().toString());
 				dispatchEvent(new Event("albumCoverAvailable"));
 			}
+			/*Handles the shuffle answer*/
 			if(serverAnswer.name()=="shuffle")
 			{
 				switch(serverAnswer.text().toString()){
@@ -113,6 +119,7 @@ package Network.Protocol
 				}
 				dispatchEvent(new Event("ShuffleStatusChanged"));
 			}
+			/*Handles the mute data change*/
 			if(serverAnswer.name()=="mute")
 			{
 				switch(serverAnswer.text().toString()){
@@ -125,10 +132,20 @@ package Network.Protocol
 				}	
 				dispatchEvent(new Event("MuteStatusChanged"));
 			}
+			/*Handles the repeat answer data*/
 			if(serverAnswer.name()=="repeat")
 			{
-				
+				switch(serverAnswer.text().toString()){
+					case "all":
+						repeatStatus=true;
+						break;
+					case "none":
+						repeatStatus=false;
+						break;
+				}
+				dispatchEvent(new Event("repeatStatusChanged"));
 			}
+			/*Handles playlist data*/
 			if(serverAnswer.name()=="playlist")
 			{
 				trackList = new ArrayList();
@@ -139,7 +156,6 @@ package Network.Protocol
 				dispatchEvent(new Event("playlistDataAvailable"));
 			}
 		}
-				
 		protected function dispatchSendSongData(event:TimerEvent):void
 		{
 			dispatchEvent(new Event("SendSongData"));
@@ -187,6 +203,10 @@ package Network.Protocol
 		public function getMuteStatus():Boolean
 		{
 			return muteStatus;
+		}
+		public function getRepeatStatus():Boolean
+		{
+			return repeatStatus;
 		}
 	}
 }

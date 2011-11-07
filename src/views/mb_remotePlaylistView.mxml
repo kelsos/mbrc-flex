@@ -19,13 +19,11 @@
 			{
 					playlistData.dataProvider=AnswerHandler.getInstance().getPlaylistData();
 			}
-			
 			protected function button1_clickHandler(event:MouseEvent):void
 			{
 				// TODO Auto-generated method stub
 				ConnectionManager.getInstance().requestPlaylist();
 			}
-			
 			protected function playlistDatachangeHandler(event:IndexChangeEvent):void
 			{
 				
@@ -36,7 +34,6 @@
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
-	<s:List id="playlistData" x="10" y="9" width="460" height="582"
+	<s:List id="playlistData" x="10" y="9" width="460" height="660"
 			change="playlistDatachangeHandler(event)"></s:List>
-	<s:Button x="10" y="599" label="Button" click="button1_clickHandler(event)"/>
 </s:View>

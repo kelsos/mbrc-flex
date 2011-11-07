@@ -17,7 +17,7 @@
 			
 			import spark.events.ViewNavigatorEvent;
 			
-				
+			/*embedded Icons*/
 			[Embed(source='icons/MD-play.png')]
 			private static var playIcon:Class;
 			[Embed(source='icons/MD-pause.png')]
@@ -30,30 +30,30 @@
 			private static var mutedIcon:Class;
 			[Embed(source='icons/MD-volume-3.png')]
 			private static var unMutedIcon:Class;
+			[Embed(source='icons/MD-repeat-alt.png')]
+			private static var repeatIcon:Class;
+			[Embed(source='icons/MD-repeat-alt-off.png')]
+			private static var repeatOffIcon:Class;
 
 			protected function previousButton_clickHandler(event:MouseEvent):void
 			{
 				ConnectionManager.getInstance().requestPreviousTrack();
 				ConnectionManager.getInstance().requestSongChangedStatus();
 			}
-			
 			protected function playButton_clickHandler(event:MouseEvent):void
 			{
 				ConnectionManager.getInstance().requestPlayPause();
 				ConnectionManager.getInstance().requestPlayState();
 			}
-			
 			protected function nextButton_clickHandler(event:MouseEvent):void
 			{
 				ConnectionManager.getInstance().requestNextTrack();
 				ConnectionManager.getInstance().requestSongChangedStatus();
 			}
-			
 			protected function volUp_clickHandler(event:MouseEvent):void
 			{
 				ConnectionManager.getInstance().requestVolumeIncrease();
 			}
-			
 			protected function volDown_clickHandler(event:MouseEvent):void
 			{
 				ConnectionManager.getInstance().requestVolumeDecrease();
@@ -68,17 +68,16 @@
 				AnswerHandler.getInstance().addEventListener("albumCoverAvailable",albumCoverDataHandler);
 				AnswerHandler.getInstance().addEventListener("ShuffleStatusChanged",shuffleStatusChangeHandler);
 				AnswerHandler.getInstance().addEventListener("MuteStatusChanged",muteStatusChangedHandler);
+				AnswerHandler.getInstance().addEventListener("repeatStatusChanged",repeatStatusChanged);
 			}
 			protected function viewActivated(event:Event):void
 			{
 				ConnectionManager.getInstance();
 			}
-
 			protected function viewDeactivateHandler(event:ViewNavigatorEvent):void
 			{
 				ConnectionManager.getInstance().disconnect();
 			}
-			
 			protected function checkChange_clickHandler(event:MouseEvent):void
 			{
 			}
@@ -86,28 +85,23 @@
 			{
 				playButton.setStyle("icon", pauseIcon);
 			}
-			
 			protected function stopButton_clickHandler(event:MouseEvent):void
 			{
 				ConnectionManager.getInstance().requestPlaybackTermination();
 				ConnectionManager.getInstance().requestPlayState();
 			}
-			
 			protected function statusPausedHandler(event:Event):void
 			{
 				playButton.setStyle("icon", playIcon);
 			}
-			
 			protected function statusStoppedHandler(event:Event):void
 			{
 				playButton.setStyle("icon", playIcon);
 			}
-			
 			protected function volumeChangedHandler(event:Event):void
 			{
 				volumeIndicator.text = AnswerHandler.getInstance().getVolume() + "%";
 			}
-			
 			protected function newArtistDataHandler(event:Event):void
 			{
 				artistName.text = AnswerHandler.getInstance().trackInfo.artist;
@@ -115,34 +109,22 @@
 				artistAlbum.text = AnswerHandler.getInstance().trackInfo.album;
 				albumYear.text = AnswerHandler.getInstance().trackInfo.year;
 			}
-			
 			protected function albumCoverDataHandler(event:Event):void
 			{
 				coverImage.source=AnswerHandler.getInstance().getCover()
 			}
-			
-			protected function changePoller(event:TimerEvent):void
-			{
-				ConnectionManager.getInstance().requestSongChangedStatus();
-				AnswerHandler.getInstance().getVolume();
-			}
-			
 			protected function buttonRepeat_clickHandler(event:MouseEvent):void
 			{
 				ConnectionManager.getInstance().requestChangeRepeatState();
 			}
-			
 			protected function buttonShuffle_clickHandler(event:MouseEvent):void
 			{
 				ConnectionManager.getInstance().requestChangeShuffleState();
 			}
-			
 			protected function buttonMute_clickHandler(event:MouseEvent):void
 			{
 				ConnectionManager.getInstance().requestChangeMuteState()
 			}
-			
-			
 			protected function shuffleStatusChangeHandler(event:Event):void
 			{
 				if(AnswerHandler.getInstance().getShuffleStatus())
@@ -154,7 +136,6 @@
 					buttonShuffle.setStyle("icon", shuffleOffIcon);
 				}
 			}
-			
 			protected function muteStatusChangedHandler(event:Event):void
 			{
 				if(AnswerHandler.getInstance().getMuteStatus())
@@ -166,7 +147,17 @@
 					buttonMute.setStyle("icon",unMutedIcon);
 				}
 			}
-			
+			protected function repeatStatusChanged(event:Event):void
+			{
+				if(AnswerHandler.getInstance().getRepeatStatus())
+				{
+					buttonRepeat.setStyle("icon",repeatIcon);	
+				}
+				else
+				{
+					buttonRepeat.setStyle("icon",repeatOffIcon);
+				}
+			}
 		]]>
 	</fx:Script>
 	
@@ -177,41 +168,52 @@
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
-	<s:Button id="previousButton" x="10" y="475" width="100" height="100"
-			  click="previousButton_clickHandler(event)" icon="@Embed('icons/MD-previous.png')"/>
+	<s:Button id="previousButton" width="100" height="100" click="previousButton_clickHandler(event)"
+			  icon="@Embed('icons/MD-previous.png')"
+			  x.Home="10" y.Home="545"
+			  x.Landscape="10" y.Landscape="475"/>
 	<s:Button id="playButton" x="130" y="474" width="100" height="100" label="Play/Pause"
-			  click="playButton_clickHandler(event)" enabled="true" icon="@Embed('icons/MD-play.png')"/>
+			  click="playButton_clickHandler(event)" enabled="true"
+			  icon="@Embed('icons/MD-play.png')"
+			  x.Home="130" y.Home="544"/>
 	<s:Button id="nextButton" x="370" y="474" width="100" height="100" label="Next"
-			  click="nextButton_clickHandler(event)" icon="@Embed('icons/MD-next.png')"/>
+			  click="nextButton_clickHandler(event)" icon="@Embed('icons/MD-next.png')"
+			  x.Home="370" y.Home="544"/>
 	<s:Button id="volDown" x="410" y="105" width="60" height="60" label="-"
-			  click="volDown_clickHandler(event)" icon="@Embed('icons/MD-volume-down.png')"/>
+			  click="volDown_clickHandler(event)" icon="@Embed('icons/MD-volume-down.png')"
+			  x.Home="409" y.Home="74"/>
 	<s:Button id="volUp" x="410" y="10" width="60" height="60" label="+"
-			  click="volUp_clickHandler(event)" icon="@Embed('icons/MD-volume-up.png')"/>
+			  click="volUp_clickHandler(event)" icon="@Embed('icons/MD-volume-up.png')"
+			  x.Home="410" y.Home="10"/>
 	<s:Label id="volumeIndicator" x="402" y="198" width="68" height="60" fontFamily="Verdana"
 			 fontSize="24" text="Vol%" textAlign="center" verticalAlign="middle"
-			 text.Home="100%"/>
+			 x.Home="402" y.Home="142" text.Home="100%"/>
 	<s:Image id="coverImage" x="115" y="10" width="250" height="250" scaleMode="letterbox"
-			 smooth.Home="true" smoothingQuality.Home="high"/>
+			 x.Home="91" y.Home="10" width.Home="300" height.Home="300" smooth.Home="true"
+			 smoothingQuality.Home="high"/>
 	<s:Label id="artistName" x="10" y="299" width="460" height="30" fontFamily="Verdana"
 			 fontSize="23" textAlign="center"
-			 x.Home="10" y.Home="306" height.Home="23" fontFamily.Home="_sans"/>
+			 x.Home="10" y.Home="396" height.Home="23" fontFamily.Home="_sans" textAlign.Home="left"/>
 	<s:Label id="artistTitle" x="11" y="337" width="459" height="23" fontFamily="Verdana"
 			 fontSize="23" textAlign="center"
-			 fontFamily.Home="_sans"/>
+			 x.Home="11" y.Home="427" fontFamily.Home="_sans" textAlign.Home="left"/>
 	<s:Label id="artistAlbum" x="10" y="368" width="460" height="23" fontFamily="Verdana"
 			 fontSize="23" textAlign="center"
-			 fontFamily.Home="_sans"/>
+			 x.Home="10" y.Home="458" fontFamily.Home="_sans" textAlign.Home="left"/>
 	<s:Label id="albumYear" x="11" y="399" width="459" height="23" fontFamily="Verdana" fontSize="23"
-			 textAlign="center"
-			 fontFamily.Home="_sans"/>
+			 x.Home="11" y.Home="489" fontFamily.Home="_sans"
+			 textAlign.Landscape="center"/>
 	<s:Button id="stopButton" x="250" y="474" width="100" height="100"
-			  click="stopButton_clickHandler(event)" icon="@Embed('icons/MD-stop.png')"/>
+			  click="stopButton_clickHandler(event)" icon="@Embed('icons/MD-stop.png')"
+			  x.Home="250" y.Home="544"/>
 	<s:Button id="buttonRepeat" x="10" y="10" width="60" height="60" label="Repeat"
 			  click="buttonRepeat_clickHandler(event)" icon="@Embed('icons/MD-repeat-alt.png')"/>
 	<s:Button id="buttonMute" x="10" y="200" width="60" height="60" label="Mute"
-			  click="buttonMute_clickHandler(event)" icon="@Embed('icons/MD-volume-3.png')"/>
+			  click="buttonMute_clickHandler(event)" icon="@Embed('icons/MD-volume-3.png')"
+			  x.Home="10" y.Home="142"/>
 	<s:Button id="buttonShuffle" x="10" y="105" width="60" height="60" label="Shuffle"
-			  click="buttonShuffle_clickHandler(event)" icon="@Embed('icons/MD-shuffle.png')"/>
+			  click="buttonShuffle_clickHandler(event)" icon="@Embed('icons/MD-shuffle.png')"
+			  x.Home="10" y.Home="74"/>
 	<s:Label x="164" y="268" text="Playing Track:"
-			 x.Home="164" y.Home="268" fontFamily.Home="Arial"/>
+			 x.Home="10" y.Home="365" fontFamily.Home="Arial"/>
 </s:View>

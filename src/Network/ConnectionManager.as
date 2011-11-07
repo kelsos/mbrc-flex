@@ -58,16 +58,18 @@ package Network {
 			return _instance;
 		}
 
-		public function connect():void{
+		public function connect():void
+		{
 			if (!xmlSocket.connected)
 				xmlSocket.connect(p.getProperty("serverAddress").toString(),parseInt(p.getProperty("serverPort").toString()));
-			requestSongData();
 		}
-		private function send(data:Object):void {
+		private function send(data:Object):void 
+		{
 			xmlSocket.send(data);
 		}
 		
-		public function disconnect():void {
+		public function disconnect():void 
+		{
 			xmlSocket.close();
 		}
 		private function configureListeners(dispatcher:IEventDispatcher):void {
@@ -85,33 +87,35 @@ package Network {
 			requestSongData();
 			requestSongCover();
 		}
-		private function closeHandler(event:Event):void {
+		private function closeHandler(event:Event):void 
+		{
 			trace("closeHandler: " + event);
 		}
-		
-		private function connectHandler(event:Event):void {
+		private function connectHandler(event:Event):void 
+		{
 			trace("connectHandler: " + event); 
 		}
-		
-		private function dataHandler(event:DataEvent):void {
+		private function dataHandler(event:DataEvent):void 
+		{
 			var xml:XML= new XML(event.data);
 			AnswerHandler.getInstance().serverAnswerHandler(xml);
 		}
-		
-		private function ioErrorHandler(event:IOErrorEvent):void {
+		private function ioErrorHandler(event:IOErrorEvent):void 
+		{
 			trace("ioErrorHandler: " + event);
 		}
 		
-		private function progressHandler(event:ProgressEvent):void {
+		private function progressHandler(event:ProgressEvent):void 
+		{
 			trace("progressHandler loaded:" + event.bytesLoaded + " total: " + event.bytesTotal);
 		}
 		
-		private function securityErrorHandler(event:SecurityErrorEvent):void {
+		private function securityErrorHandler(event:SecurityErrorEvent):void 
+		{
 			trace("securityErrorHandler: " + event);
 		}
 		public function requestPlayPause():void
 		{
-			connect();
 			send("PLAYPAUSE\0");
 			send("\r\n");
 		}
