@@ -10,6 +10,8 @@ package Network {
 	import flash.utils.Timer;
 	import flash.xml.XMLNode;
 	
+	import mx.collections.ArrayList;
+	
 	import spark.components.Image;
 	import spark.managers.PersistenceManager;
 	
@@ -20,6 +22,7 @@ package Network {
 	[Event(name="newArtistDataAvailable", type="flash.events.Event")]
 	[Event(name="albumCoverAvailable", type="flash.events.Event")]
 	[Event(name="ShuffleStatusChanged", type="flash.events.Event")]
+	[Event(name="playlistDataAvailable", type="flash.events.Event")]
 	public class ConnectionManager extends EventDispatcher {
 		private var xmlSocket:XMLSocket;
 		private var _serverAnswer:String;
@@ -97,6 +100,12 @@ package Network {
 			answerHandle.addEventListener("newArtistDataAvailable",newArtistDataHandler);
 			answerHandle.addEventListener("albumCoverAvailable",albumCoverDataHandler);
 			answerHandle.addEventListener("ShuffleStatusChanged",shuffleStatusHandler);
+			answerHandle.addEventListener("playlistDataAvailable",playlistDataHandler);
+		}
+		
+		protected function playlistDataHandler(event:Event):void
+		{
+			dispatchEvent(new Event("playlistDataAvailable"));
 		}
 		
 		protected function shuffleStatusHandler(event:Event):void
@@ -244,6 +253,15 @@ package Network {
 		{
 			send("REPEAT\0");
 			send("\r\n");
+		}
+		public function requestPlaylist():void
+		{
+			send("PLAYLIST");
+			send("\r\n");
+		}
+		public function getPlaylistData():ArrayList
+		{
+			return answerHandle.getPlaylistData();
 		}
 	}
 }

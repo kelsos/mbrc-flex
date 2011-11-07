@@ -6,6 +6,7 @@ package Network.Protocol
 	import flash.utils.ByteArray;
 	import flash.utils.Timer;
 	
+	import mx.collections.ArrayList;
 	import mx.utils.Base64Decoder;
 	
 	/*Events dispatched by the answerHandler */
@@ -17,6 +18,7 @@ package Network.Protocol
 	[Event(name="newArtistDataAvailable", type="flash.events.Event")]
 	[Event(name="albumCoverAvailable", type="flash.events.Event")]
 	[Event(name="ShuffleStatusChanged", type="flash.events.Event")]
+	[Event(name="playlistDataAvailable", type="flash.events.Event")]
 	
 	//dispatchEvent(new Event('socketData'));
 	public class AnswerHandler extends EventDispatcher
@@ -26,6 +28,7 @@ package Network.Protocol
 		private var imageDataFlag:Boolean;
 		private var imageData:String;
 		private var shuffleStatus:Boolean;
+		private var trackList:ArrayList; 
 		public function AnswerHandler()
 		{
 			trackInfo = new TrackInfo();
@@ -103,6 +106,15 @@ package Network.Protocol
 			{
 				
 			}
+			if(serverAnswer.name()=="playlist")
+			{
+				trackList = new ArrayList();
+				for each (var xtag:XML in serverAnswer.children())
+				{
+					trackList.addItem(xtag.text().toString());
+				}
+				dispatchEvent(new Event("playlistDataAvailable"));
+			}
 		}
 				
 		protected function dispatchSendSongData(event:TimerEvent):void
@@ -140,6 +152,10 @@ package Network.Protocol
 		public function getShuffleStatus():Boolean
 		{
 			return shuffleStatus;	
+		}
+		public function getPlaylistData():ArrayList
+		{
+			return trackList;
 		}
 	}
 }

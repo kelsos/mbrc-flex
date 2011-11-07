@@ -131,6 +131,7 @@
 				ConnectionManager.getInstance().requestChangeMuteState()
 			}
 			
+			
 		]]>
 	</fx:Script>
 	
