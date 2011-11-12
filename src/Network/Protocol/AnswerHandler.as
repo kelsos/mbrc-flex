@@ -27,7 +27,7 @@ package Network.Protocol
 	{
 		public var trackInfo:TrackInfo;
 		/*private variables*/
-		private var volumeData:int;
+		private var volumeData:Number;
 		private var imageDataFlag:Boolean;
 		private var imageData:ByteArray;
 		private var shuffleStatus:Boolean;
@@ -77,7 +77,7 @@ package Network.Protocol
 				}
 			}
 			/*Handles the volume related answers. The answers include the current volume.*/
-			if(serverAnswer.name()=="currentVolume"||serverAnswer.name()=="increasedVolume"||serverAnswer.name()=="decreasedVolume")
+			if(serverAnswer.name()=="volume")
 				volumeAnswerHandler(serverAnswer.text().toString());
 			/*Handles the answer to the song change Command. If the answer is true requests the song data. */
 			if(serverAnswer.name()=="songChanged")
@@ -101,7 +101,7 @@ package Network.Protocol
 				 artistDataHandler(tagArray);
 			}
 			/*Handles the image data*/
-			if(serverAnswer.name()=="image")
+			if(serverAnswer.name()=="songCover")
 			{
 				imageData=coverDataHandler(serverAnswer.text().toString());
 				dispatchEvent(new Event("albumCoverAvailable"));
@@ -136,10 +136,10 @@ package Network.Protocol
 			if(serverAnswer.name()=="repeat")
 			{
 				switch(serverAnswer.text().toString()){
-					case "all":
+					case "All":
 						repeatStatus=true;
 						break;
-					case "none":
+					case "None":
 						repeatStatus=false;
 						break;
 				}
@@ -165,7 +165,7 @@ package Network.Protocol
 			return volumeData;
 		}
 		private function volumeAnswerHandler(volume:String):void{
-			volumeData = (parseInt(volume)*10);
+			volumeData = parseInt(volume);
 			dispatchEvent(new Event("volumeChanged"));
 		}
 		private function artistDataHandler(artistData:Array):void{

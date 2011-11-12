@@ -2,5 +2,5 @@
 
 
 <qnx>
-	<permission>access_internet</permission>
+   <permission>access_internet</permission>
 </qnx>

@@ -10,6 +10,8 @@ package Network {
 	import flash.utils.Timer;
 	import flash.xml.XMLNode;
 	
+	import flashx.textLayout.formats.Float;
+	
 	import mx.collections.ArrayList;
 	
 	import spark.components.Image;
@@ -47,6 +49,9 @@ package Network {
 			requestPlayState();
 			requestSongChangedStatus();
 			requestVolume();
+			requestMuteState();
+			requestShuffleState();
+			requestRepeatState();
 		}
 		
 		public static function getInstance():ConnectionManager
@@ -116,77 +121,88 @@ package Network {
 		}
 		public function requestPlayPause():void
 		{
-			send("PLAYPAUSE\0");
+			var playPauseXml:XML=new XML("<playPause/>");
+			send(playPauseXml);
 			send("\r\n");
 		}
 		public function requestNextTrack():void
 		{
-			send("NEXT\0");
+			var nextXml:XML=new XML("<next/>");
+			send(nextXml);
 			send("\r\n");
 		}
 		public function requestPreviousTrack():void
 		{
-			send("PREVIOUS\0");
+			var previousXml:XML=new XML("<previous/>");
+			send(previousXml);
 			send("\r\n");
 		}
 		public function requestPlayState():void
 		{
-			send("GETPLAYSTATE\0");
+			var playStateXml:XML = new XML("<playState/>");
+			send(playStateXml);
 			send("\r\n");
 		}
-		public function requestVolume():void
+		public function requestVolume(vol:Number=-1):void
 		{
-			send("GETVOL\0");
-			send("\r\n");
-		}
-		public function requestVolumeIncrease():void
-		{
-			send("INCREASEVOL\0");
-			send("\r\n");
-		}
-		public function requestVolumeDecrease():void
-		{
-			send("DECREASEVOL\0");
+			var volumeXml:XML;
+			if ((vol>=0)&&(vol<=10))
+			{
+			 volumeXml = new XML("<volume>"+vol+"</volume>");
+			}
+			else
+			{
+				volumeXml=new XML("<volume/>")	
+			}
+			send(volumeXml);
 			send("\r\n");
 		}
 		public function requestSongChangedStatus():void
 		{
-			send("ISSONGCHANGED\0");
+			var songChangedXml:XML=new XML("<songChanged/>");
+			send(songChangedXml);
 			send("\r\n");
 		}
 		public function requestSongData():void
 		{
-			send("SENDSONGDATA\0");
+			var songInfoXml:XML=new XML("<songInfo/>");
+			send(songInfoXml);
 			send("\r\n");
 		}
 		public function requestSongCover():void
 		{
-			send("SENDSONGCOVER\0");
+			var songCoverXml:XML = new XML("<songCover/>");
+			send(songCoverXml);
 			send("\r\n");
 		}
 		public function requestPlaybackTermination():void
 		{
-			send("STOPPLAYBACK\0");
+			var stopPlaybackXml:XML = new XML("<stopPlayback/>");
+			send(stopPlaybackXml);
 			send("\r\n");
 		}
-		public function requestChangeShuffleState():void
+		public function requestShuffleState(action:String="state"):void
 		{
-			send("SHUFFLE\0");
+			var shuffleXml:XML = new XML("<shuffle>"+action+"</shuffle>");
+			send(shuffleXml);
 			send("\r\n");
 		}
-		public function requestChangeMuteState():void
+		public function requestMuteState(action:String="state"):void
 		{
-			send("MUTE\0");
+			var muteXml:XML = new XML("<mute>"+action+"</mute>");
+			send(muteXml);
 			send("\r\n");
 		}
-		public function requestChangeRepeatState():void
+		public function requestRepeatState(action:String="state"):void
 		{
-			send("REPEAT\0");
+			var repeatXml:XML = new XML("<repeat>"+action+"</repeat>");
+			send(repeatXml);
 			send("\r\n");
 		}
 		public function requestPlaylist():void
 		{
-			send("PLAYLIST");
+			var playlistXml:XML = new XML("<playlist/>");
+			send(playlistXml);
 			send("\r\n");
 		}
 	}
