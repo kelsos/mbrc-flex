@@ -3,7 +3,8 @@
 		xmlns:s="library://ns.adobe.com/flex/spark"
 		xmlns:supportClasses="spark.skins.mobile.supportClasses.*"
 		activate="viewActivated(event)" creationComplete="viewIntializer(event)" currentState="Home"
-		title="Home" viewDeactivate="viewDeactivateHandler(event)">
+		title="Home" viewDeactivate="viewDeactivateHandler(event)"
+		actionBarVisible.Home="false">
 	<s:layout>
 		<s:BasicLayout/>
 	</s:layout>
@@ -176,6 +177,7 @@
 			
 			protected function volumeSliderChangeHandler(event:Event):void
 			{
+				trace(event.target);
 				if(!_handlingVolumeReply)
 				{
 					ConnectionManager.getInstance().requestVolume(volumeSlider.value);
@@ -183,6 +185,16 @@
 				else {
 					_handlingVolumeReply=false
 				}
+			}
+			
+			protected function playlistButtonClickHandler(event:MouseEvent):void
+			{
+				this.navigator.pushView(views.mb_remotePlaylistView);
+			}
+			
+			protected function SettingsButtonClickHandler(event:MouseEvent):void
+			{
+				this.navigator.pushView(views.mb_remoteSettingsView);
 			}
 			
 		]]>
@@ -196,17 +208,17 @@
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
 	<s:Button id="previousButton" width="100" height="100" click="previousButton_clickHandler(event)"
-			  x.Home="20" y.Home="560" width.Home="110" height.Home="110"
+			  x.Home="18" y.Home="550" width.Home="110" height.Home="110"
 			  icon.Home="@Embed('assets/MD-previous.png')" styleName.Home="previousButton"
 			  x.Landscape="10" y.Landscape="475" icon.Landscape="@Embed('assets/MD-previous.png')"/>
 	<s:Button id="playButton" x="130" y="474" width="100" height="100" label="Play/Pause"
 			  click="playButton_clickHandler(event)" enabled="true"
-			  x.Home="130" y.Home="560" width.Home="110" height.Home="110"
+			  x.Home="128" y.Home="550" width.Home="110" height.Home="110"
 			  icon.Home="@Embed('assets/MD-play.png')" styleName.Home="playButton"
 			  icon.Landscape="@Embed('assets/MD-play.png')"/>
 	<s:Button id="nextButton" x="370" y="474" width="100" height="100" label="Next"
 			  click="nextButton_clickHandler(event)"
-			  x.Home="350" y.Home="560" width.Home="110" height.Home="110"
+			  x.Home="348" y.Home="550" width.Home="110" height.Home="110"
 			  icon.Home="@Embed('assets/MD-next.png')" styleName.Home="nextButton"
 			  icon.Landscape="@Embed('assets/MD-next.png')"/>
 	<s:Label id="volumeIndicator" includeIn="Landscape" x="402" y="198" width="68" height="60"
@@ -230,7 +242,7 @@
 			 textAlign.Landscape="center"/>
 	<s:Button id="stopButton" x="250" y="474" width="100" height="100"
 			  click="stopButton_clickHandler(event)"
-			  x.Home="240" y.Home="560" width.Home="110" height.Home="110"
+			  x.Home="238" y.Home="550" width.Home="110" height.Home="110"
 			  icon.Home="@Embed('assets/MD-stop.png')" styleName.Home="stopButton"
 			  icon.Landscape="@Embed('assets/MD-stop.png')"/>
 	<s:Button id="buttonRepeat" x="10" y="10" width="60" height="60" label="Repeat"
@@ -249,8 +261,16 @@
 			  styleName.Home="ShuffleButton"
 			  icon.Landscape="@Embed('assets/MD-shuffle.png')"/>
 	<s:Label x="164" y="268" text="Playing Track:"
-			 x.Home="20" y.Home="365"/>
+			 x.Home="20" y.Home="370" fontSize.Home="20" textDecoration.Home="none"/>
 	<s:HSlider id="volumeSlider" includeIn="Home" x="20" y="318" width="440"
 			   change="volumeSliderChangeHandler(event)" liveDragging="true" maximum="10"
 			   minimum="0" stepSize="1"/>
+	<s:Button id="playlistButton" includeIn="Home" x="135" y="668" width="70" height="70"
+			  click="playlistButtonClickHandler(event)" icon="assets/list.png"
+			  styleName="PlaylistButton"/>
+	<s:Button id="libraryButton" includeIn="Home" x="205" y="668" width="70" height="70"
+			  styleName="LibraryButton"/>
+	<s:Button id="SettingsButton" includeIn="Home" x="275" y="668" width="70" height="70"
+			  click="SettingsButtonClickHandler(event)" icon="assets/settings.png"
+			  styleName="SettingsButton"/>
 </s:View>

@@ -3,22 +3,21 @@
 							xmlns:s="library://ns.adobe.com/flex/spark"
 							firstView="views.mb_remoteHomeView"
 							splashScreenImage="@Embed('assets/splash-screen.png')"
-							splashScreenScaleMode="zoom" title="Remote Control for MusicBee">
+							splashScreenScaleMode="zoom" title="Remote Control for MusicBee" creationComplete="appInitializeHandler(event)">
 	<fx:Script>
 		<![CDATA[
-			import skins.buttonbar.horizonal.MiddleHButton;
+			import mx.events.FlexEvent;
+			import views.mb_remoteHomeView;
 			import views.mb_remotePlaylistView;
 			import views.mb_remoteSettingsView;
 			
-			private var skins_RoundPlayButton_obj:skins.buttonbar.horizonal.MiddleHButton;
-						
+			protected function appInitializeHandler(event:FlexEvent):void
+			{
+				navigator.hideActionBar(true);
+			}
+			
 		]]>
 	</fx:Script>
-	<s:navigationContent>
-		<s:Button icon="@Embed('assets/home.png')" click="navigator.popToFirstView()" width="70" height="55"/>
-		<s:Button icon="@Embed('assets/list.png')" click="navigator.pushView(views.mb_remotePlaylistView)" width="70" height="55" />
-		<s:Button icon="@Embed('assets/settings.png')" click="navigator.pushView(views.mb_remoteSettingsView)" width="70" height="55"/>
-	</s:navigationContent>
 	<fx:Style source="mb_remote.css"/>
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->

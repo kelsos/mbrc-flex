@@ -6,12 +6,6 @@ global
 {
 	content-background-alpha: 1.0;
 }
-	
-s|ActionBar
-{
-	chromeColor: #202020;
-	fontSize:16px;
-}
 s|View
 {
 	backgroundColor: #333333;
@@ -76,4 +70,16 @@ s|Button.muteButton
 s|Button.ShuffleButton
 {
 	skinClass:ClassReference("skins.buttonbar.vertical.MiddleVButton");
+}
+s|Button.PlaylistButton
+{
+	skinClass:ClassReference("skins.buttonbar.horizonal.LeftButton")
+}
+s|Button.LibraryButton
+{
+	skinClass:ClassReference("skins.buttonbar.horizonal.MiddleHButton")
+}
+s|Button.SettingsButton
+{
+	skinClass:ClassReference("skins.buttonbar.horizonal.RightButton")
 }
