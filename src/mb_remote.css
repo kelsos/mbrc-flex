@@ -9,13 +9,71 @@ global
 	
 s|ActionBar
 {
-	chromeColor: #0099CC
+	chromeColor: #202020;
+	fontSize:16px;
 }
 s|View
 {
-	backgroundColor: #E6E8FA
+	backgroundColor: #333333;
 }
 s|TextInput
 {
-	color: #E0DFDB
+	contentBackgroundColor:#414141;
+	color: #8F8145;
+}
+s|Label
+{
+	fontFamily: Arial;
+	color: #8F8145;
+}
+s|Image
+{
+	smoothingQuality: high;
+	backgroundColor: #333333;
+}
+s|Button
+{
+	chromeColor: #414141;
+}
+s|List
+{
+	contentBackgroundColor: #333333;
+	alternatingItemColors:#333333;
+	borderVisible:false;
+	color:#8F8145;
+}
+s|TextArea
+{
+	fontFamily: "Courier New";
+	fontSize: 18;
+	contentBackgroundColor:#414141;
+	color: #8F8145;
+}
+s|Button.playButton
+{
+	skinClass:ClassReference("skins.buttonbar.horizonal.MiddleHButton");
+}
+s|Button.stopButton
+{
+	skinClass:ClassReference("skins.buttonbar.horizonal.MiddleHButton");
+}
+s|Button.previousButton
+{
+	skinClass:ClassReference("skins.buttonbar.horizonal.LeftButton");
+}
+s|Button.nextButton
+{
+	skinClass:ClassReference("skins.buttonbar.horizonal.RightButton");
+}
+s|Button.repeatButton
+{
+	skinClass:ClassReference("skins.buttonbar.vertical.TopButton");
+}
+s|Button.muteButton
+{
+	skinClass:ClassReference("skins.buttonbar.vertical.BottomButton");
+}
+s|Button.ShuffleButton
+{
+	skinClass:ClassReference("skins.buttonbar.vertical.MiddleVButton");
 }

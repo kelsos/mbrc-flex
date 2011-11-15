@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Graphic version="2.0" viewHeight="128" viewWidth="128" ai:appVersion="15.1.0.39" ATE:version="1.0.0" flm:version="1.0.0" d:id="1" d:using="" xmlns="http://ns.adobe.com/fxg/2008" xmlns:ATE="http://ns.adobe.com/ate/2009" xmlns:ai="http://ns.adobe.com/ai/2009" xmlns:d="http://ns.adobe.com/fxg/2008/dt" xmlns:flm="http://ns.adobe.com/flame/2008">
+  <Library/>
+  <Group ai:artboardActive="1" ai:artboardIndex="0" ai:seqID="1" d:layerType="page" d:pageHeight="128" d:pageWidth="128" d:type="layer" d:userLabel="Artboard 1">
+    <Group ai:objID="1b3ca680" ai:seqID="2" d:id="2" d:type="layer" d:userLabel="Layer 1">
+      <Path y="-0.000488281" winding="nonZero" ai:objID="1946e800" ai:seqID="3" data="M116.002 0C122.629 0 128.001 5.37207 128.001 11.999L128.001 116C128.001 122.627 122.629 128 116.002 128L0 128 0 0 116.002 0Z">
+        <fill>
+          <LinearGradient x="63.8799" y="128.46" scaleX="127.852" rotation="270.098">
+            <GradientEntry ratio="0" color="#3C3C3C"/>
+            <GradientEntry ratio="0.50303" color="#464646"/>
+            <GradientEntry ratio="1" color="#505050"/>
+          </LinearGradient>
+        </fill>
+      </Path>
+    </Group>
+  </Group>
+  <Private>
+      <ai:PrivateElement d:ref="#1">
+        <ai:SaveOptions>
+          <ai:Dict data="I versionKey 2 B writeImages 1 B aiEditCap 1 B includeSymbol 0 B includeXMP 0 B includeObjectOutsideArtboard 0 I expandBlendsOption 5 B downsampleLinkedImages 0 I rasterizeResolution 72 I preserveGradientPolicy 4 I preserveFilterPolicy 3 I preserveTextPolicy 4 "/>
+        </ai:SaveOptions>
+        <ai:DocData base="nextUp.assets/images" rulerCanvasDiffH="64.5" rulerCanvasDiffV="64.5">
+          <ai:DocRasterSettings>
+            <ai:Dict data="R padd 36 B spot 0 B mask 0 I dpi. 72 I colr 4 B alis 0 "/>
+          </ai:DocRasterSettings>
+        </ai:DocData>
+        <ai:AutoGenImageList>
+          <ai:Dict/>
+        </ai:AutoGenImageList>
+      </ai:PrivateElement>
+      <ai:PrivateElement flm:hashcode="159145826422B46599E91B0EA0722ED1" d:ref="#2">
+        <ai:LayerOptions color="5 79.31 257 128.502"/>
+      </ai:PrivateElement>
+    </Private>
+  </Graphic>

@@ -18,24 +18,24 @@
 			import spark.events.ViewNavigatorEvent;
 			
 			/*embedded Icons*/
-			[Embed(source='icons/MD-play.png')]
+			[Embed(source='assets/MD-play.png')]
 			private static var playIcon:Class;
-			[Embed(source='icons/MD-pause.png')]
+			[Embed(source='assets/MD-pause.png')]
 			private static var pauseIcon:Class;
-			[Embed(source='icons/MD-shuffle-off.png')]
+			[Embed(source='assets/MD-shuffle-off.png')]
 			private static var shuffleOffIcon:Class;
-			[Embed(source='icons/MD-shuffle.png')]
+			[Embed(source='assets/MD-shuffle.png')]
 			private static var shuffleIcon:Class;
-			[Embed(source='icons/MD-volume-0-alt.png')]
+			[Embed(source='assets/MD-volume-0-alt.png')]
 			private static var mutedIcon:Class;
-			[Embed(source='icons/MD-volume-3.png')]
+			[Embed(source='assets/MD-volume-3.png')]
 			private static var unMutedIcon:Class;
-			[Embed(source='icons/MD-repeat-alt.png')]
+			[Embed(source='assets/MD-repeat-alt.png')]
 			private static var repeatIcon:Class;
-			[Embed(source='icons/MD-repeat-alt-off.png')]
+			[Embed(source='assets/MD-repeat-alt-off.png')]
 			private static var repeatOffIcon:Class;
 			
-			private var handlingVolumeReply:Boolean=false;
+			private var _handlingVolumeReply:Boolean=false;
 
 			protected function previousButton_clickHandler(event:MouseEvent):void
 			{
@@ -52,7 +52,7 @@
 				ConnectionManager.getInstance().requestNextTrack();
 				ConnectionManager.getInstance().requestSongChangedStatus();
 			}
-			protected function viewIntializer(event:FlexEvent):void
+			private function addListeners():void
 			{
 				AnswerHandler.getInstance().addEventListener("statusPlaying",statusPlayingHandler);
 				AnswerHandler.getInstance().addEventListener("statusPaused",statusPausedHandler);
@@ -63,6 +63,26 @@
 				AnswerHandler.getInstance().addEventListener("ShuffleStatusChanged",shuffleStatusChangeHandler);
 				AnswerHandler.getInstance().addEventListener("MuteStatusChanged",muteStatusChangedHandler);
 				AnswerHandler.getInstance().addEventListener("repeatStatusChanged",repeatStatusChanged);
+			}
+			protected function viewIntializer(event:FlexEvent):void
+			{
+				addListeners();
+				
+				if(AnswerHandler.getInstance().getCover()!=null)
+				{
+					coverImage.source=AnswerHandler.getInstance().getCover();
+				}
+				if(AnswerHandler.getInstance().trackInfo.artist!="")
+				{
+					artistName.text = AnswerHandler.getInstance().trackInfo.artist;
+					artistTitle.text = AnswerHandler.getInstance().trackInfo.title;
+					artistAlbum.text = AnswerHandler.getInstance().trackInfo.album;
+					albumYear.text = AnswerHandler.getInstance().trackInfo.year;
+				}
+				ConnectionManager.getInstance().requestMuteState();
+				ConnectionManager.getInstance().requestShuffleState();
+				ConnectionManager.getInstance().requestRepeatState();
+				ConnectionManager.getInstance().requestVolume();
 			}
 			protected function viewActivated(event:Event):void
 			{
@@ -94,7 +114,7 @@
 			}
 			protected function volumeChangedHandler(event:Event):void
 			{
-				handlingVolumeReply=true;
+				_handlingVolumeReply=true;
 				volumeSlider.value=AnswerHandler.getInstance().getVolume();
 			}
 			protected function newArtistDataHandler(event:Event):void
@@ -154,14 +174,14 @@
 				}
 			}
 			
-			protected function volumeSlider_changeHandler(event:Event):void
+			protected function volumeSliderChangeHandler(event:Event):void
 			{
-				if(!handlingVolumeReply)
+				if(!_handlingVolumeReply)
 				{
 					ConnectionManager.getInstance().requestVolume(volumeSlider.value);
 				}
 				else {
-					handlingVolumeReply=false
+					_handlingVolumeReply=false
 				}
 			}
 			
@@ -176,49 +196,61 @@
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
 	<s:Button id="previousButton" width="100" height="100" click="previousButton_clickHandler(event)"
-			  icon="@Embed('icons/MD-previous.png')"
-			  x.Home="10" y.Home="545"
-			  x.Landscape="10" y.Landscape="475"/>
+			  x.Home="20" y.Home="560" width.Home="110" height.Home="110"
+			  icon.Home="@Embed('assets/MD-previous.png')" styleName.Home="previousButton"
+			  x.Landscape="10" y.Landscape="475" icon.Landscape="@Embed('assets/MD-previous.png')"/>
 	<s:Button id="playButton" x="130" y="474" width="100" height="100" label="Play/Pause"
 			  click="playButton_clickHandler(event)" enabled="true"
-			  icon="@Embed('icons/MD-play.png')"
-			  x.Home="130" y.Home="544"/>
+			  x.Home="130" y.Home="560" width.Home="110" height.Home="110"
+			  icon.Home="@Embed('assets/MD-play.png')" styleName.Home="playButton"
+			  icon.Landscape="@Embed('assets/MD-play.png')"/>
 	<s:Button id="nextButton" x="370" y="474" width="100" height="100" label="Next"
-			  click="nextButton_clickHandler(event)" icon="@Embed('icons/MD-next.png')"
-			  x.Home="370" y.Home="544"/>
+			  click="nextButton_clickHandler(event)"
+			  x.Home="350" y.Home="560" width.Home="110" height.Home="110"
+			  icon.Home="@Embed('assets/MD-next.png')" styleName.Home="nextButton"
+			  icon.Landscape="@Embed('assets/MD-next.png')"/>
 	<s:Label id="volumeIndicator" includeIn="Landscape" x="402" y="198" width="68" height="60"
 			 fontFamily="Verdana" fontSize="24" text="Vol%" textAlign="center"
 			 verticalAlign="middle"/>
 	<s:Image id="coverImage" x="115" y="10" width="250" height="250" scaleMode="letterbox"
-			 x.Home="10" y.Home="10" width.Home="300" height.Home="300" smooth.Home="true"
-			 smoothingQuality.Home="high"/>
+			 x.Home="20" y.Home="10" width.Home="300" height.Home="300" smooth.Home="true"
+			 source.Home="@Embed('assets/404.png')"/>
 	<s:Label id="artistName" x="10" y="299" width="460" height="30" fontFamily="Verdana"
 			 fontSize="23" textAlign="center"
-			 x.Home="10" y.Home="396" height.Home="23" fontFamily.Home="_sans" textAlign.Home="left"/>
+			 x.Home="20" y.Home="407" width.Home="440" height.Home="23" fontFamily.Home="_sans"
+			 textAlign.Home="left"/>
 	<s:Label id="artistTitle" x="11" y="337" width="459" height="23" fontFamily="Verdana"
 			 fontSize="23" textAlign="center"
-			 x.Home="11" y.Home="427" fontFamily.Home="_sans" textAlign.Home="left"/>
+			 x.Home="20" y.Home="438" width.Home="440" fontFamily.Home="_sans" textAlign.Home="left"/>
 	<s:Label id="artistAlbum" x="10" y="368" width="460" height="23" fontFamily="Verdana"
 			 fontSize="23" textAlign="center"
-			 x.Home="10" y.Home="458" fontFamily.Home="_sans" textAlign.Home="left"/>
+			 x.Home="20" y.Home="469" width.Home="440" fontFamily.Home="_sans" textAlign.Home="left"/>
 	<s:Label id="albumYear" x="11" y="399" width="459" height="23" fontFamily="Verdana" fontSize="23"
-			 x.Home="11" y.Home="489" fontFamily.Home="_sans"
+			 x.Home="20" y.Home="500" width.Home="440" fontFamily.Home="_sans"
 			 textAlign.Landscape="center"/>
 	<s:Button id="stopButton" x="250" y="474" width="100" height="100"
-			  click="stopButton_clickHandler(event)" icon="@Embed('icons/MD-stop.png')"
-			  x.Home="250" y.Home="544"/>
+			  click="stopButton_clickHandler(event)"
+			  x.Home="240" y.Home="560" width.Home="110" height.Home="110"
+			  icon.Home="@Embed('assets/MD-stop.png')" styleName.Home="stopButton"
+			  icon.Landscape="@Embed('assets/MD-stop.png')"/>
 	<s:Button id="buttonRepeat" x="10" y="10" width="60" height="60" label="Repeat"
-			  click="buttonRepeat_clickHandler(event)" icon="@Embed('icons/MD-repeat-alt.png')"
-			  x.Home="390" y.Home="10"/>
+			  click="buttonRepeat_clickHandler(event)"
+			  x.Home="400" y.Home="10" icon.Home="@Embed('assets/MD-repeat-alt.png')"
+			  styleName.Home="repeatButton"
+			  icon.Landscape="@Embed('assets/MD-repeat-alt.png')"/>
 	<s:Button id="buttonMute" x="10" y="200" width="60" height="60" label="Mute"
-			  click="buttonMute_clickHandler(event)" icon="@Embed('icons/MD-volume-3.png')"
-			  x.Home="390" y.Home="146"/>
+			  click="buttonMute_clickHandler(event)"
+			  x.Home="400" y.Home="130" icon.Home="@Embed('assets/MD-volume-3.png')"
+			  styleName.Home="muteButton"
+			  icon.Landscape="@Embed('assets/MD-volume-3.png')"/>
 	<s:Button id="buttonShuffle" x="10" y="105" width="60" height="60" label="Shuffle"
-			  click="buttonShuffle_clickHandler(event)" icon="@Embed('icons/MD-shuffle.png')"
-			  x.Home="390" y.Home="78"/>
+			  click="buttonShuffle_clickHandler(event)"
+			  x.Home="400" y.Home="70" icon.Home="@Embed('assets/MD-shuffle.png')"
+			  styleName.Home="ShuffleButton"
+			  icon.Landscape="@Embed('assets/MD-shuffle.png')"/>
 	<s:Label x="164" y="268" text="Playing Track:"
-			 x.Home="10" y.Home="365" fontFamily.Home="Arial"/>
-	<s:HSlider id="volumeSlider" includeIn="Home" x="10" y="318" width="464"
-			   change="volumeSlider_changeHandler(event)" liveDragging="true" maximum="10"
+			 x.Home="20" y.Home="365"/>
+	<s:HSlider id="volumeSlider" includeIn="Home" x="20" y="318" width="440"
+			   change="volumeSliderChangeHandler(event)" liveDragging="true" maximum="10"
 			   minimum="0" stepSize="1"/>
 </s:View>

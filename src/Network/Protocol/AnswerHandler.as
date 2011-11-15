@@ -27,15 +27,20 @@ package Network.Protocol
 	{
 		public var trackInfo:TrackInfo;
 		/*private variables*/
-		private var volumeData:Number;
-		private var imageDataFlag:Boolean;
-		private var imageData:ByteArray;
-		private var shuffleStatus:Boolean;
-		private var muteStatus:Boolean;
-		private var repeatStatus:Boolean;
-		private var trackList:ArrayList; 
+		private var _volumeData:Number;
+		private var _imageDataFlag:Boolean;
+		private var _imageData:ByteArray;
+		private var _shuffleStatus:Boolean;
+		private var _muteStatus:Boolean;
+		private var _repeatStatus:Boolean;
+		private var _trackList:ArrayList; 
 		private static var _instance:AnswerHandler;
 		
+		/**
+		 * AnswerHandler's constructor. 
+		 * @param enforcer
+		 * 
+		 */
 		public function AnswerHandler(enforcer:SingletonEnforcer)
 		{
 			if(enforcer==null)
@@ -44,6 +49,12 @@ package Network.Protocol
 			}
 			trackInfo = new TrackInfo();
 		}
+		/**
+		 * AnswerHandler's public entry point. Through getInstance you can access the Handler's functions
+		 * and properties.
+		 * @return 
+		 * 
+		 */
 		public static function getInstance():AnswerHandler
 		{
 			if (_instance==null)
@@ -52,13 +63,15 @@ package Network.Protocol
 			}
 			return _instance;
 		}
-		/** Handles the server answers and takes actions depending on the type of the answer.
-		 * It is part of the application protocol. 
+		/** 
+		 * The answerProcessor function gets the server's answer XML and depending on the XML tag's name
+		 * it forwards the data to the function responsible. Then it dispatches an event to the listener
+		 * to inform for data availability. 
 		 * 
 		 * @param serverAnswer
 		 * 
 		 */
-		public function serverAnswerHandler(serverAnswer:XML):void{
+		public function answerProcessor(serverAnswer:XML):void{
 			/*Handles the playstate replated answers */
 			if (serverAnswer.name()=="playState")
 			{
@@ -92,18 +105,13 @@ package Network.Protocol
 			/*Handles the SongInfo*/
 			if(serverAnswer.name()=="songInfo")
 			{
-				var count:int=0;
-				var tagArray:Array = new Array(4);
-				for each (var tag:XML in serverAnswer.children())
-				{
-					tagArray[count++]=tag.text().toString();
-				}
-				 artistDataHandler(tagArray);
+				this.trackInfo.fromXml(serverAnswer);
+				dispatchEvent(new Event("newArtistDataAvailable"));
 			}
 			/*Handles the image data*/
 			if(serverAnswer.name()=="songCover")
 			{
-				imageData=coverDataHandler(serverAnswer.text().toString());
+				_imageData=coverDataHandler(serverAnswer.text().toString());
 				dispatchEvent(new Event("albumCoverAvailable"));
 			}
 			/*Handles the shuffle answer*/
@@ -111,10 +119,10 @@ package Network.Protocol
 			{
 				switch(serverAnswer.text().toString()){
 					case "True":
-						shuffleStatus=true;
+						_shuffleStatus=true;
 						break;
 					case "False":
-						shuffleStatus=false;
+						_shuffleStatus=false;
 						break;
 				}
 				dispatchEvent(new Event("ShuffleStatusChanged"));
@@ -124,10 +132,10 @@ package Network.Protocol
 			{
 				switch(serverAnswer.text().toString()){
 					case "True":
-						muteStatus=true;
+						_muteStatus=true;
 						break;
 					case "False":
-						muteStatus=false;
+						_muteStatus=false;
 						break;
 				}	
 				dispatchEvent(new Event("MuteStatusChanged"));
@@ -137,10 +145,10 @@ package Network.Protocol
 			{
 				switch(serverAnswer.text().toString()){
 					case "All":
-						repeatStatus=true;
+						_repeatStatus=true;
 						break;
 					case "None":
-						repeatStatus=false;
+						_repeatStatus=false;
 						break;
 				}
 				dispatchEvent(new Event("repeatStatusChanged"));
@@ -148,10 +156,10 @@ package Network.Protocol
 			/*Handles playlist data*/
 			if(serverAnswer.name()=="playlist")
 			{
-				trackList = new ArrayList();
+				_trackList = new ArrayList();
 				for each (var xtag:XML in serverAnswer.children())
 				{
-					trackList.addItem(xtag.text().toString());
+					_trackList.addItem(xtag.text().toString());
 				}
 				dispatchEvent(new Event("playlistDataAvailable"));
 			}
@@ -162,21 +170,13 @@ package Network.Protocol
 		}
 		public function getVolume():int
 		{
-			return volumeData;
+			return _volumeData;
 		}
 		private function volumeAnswerHandler(volume:String):void{
-			volumeData = parseInt(volume);
+			_volumeData = parseInt(volume);
 			dispatchEvent(new Event("volumeChanged"));
 		}
-		private function artistDataHandler(artistData:Array):void{
-			
-			var i:int = 0;
-			trackInfo.artist = artistData[i++];
-			trackInfo.title = artistData[i++];
-			trackInfo.album = artistData[i++];
-			trackInfo.year = artistData[i++];
-			dispatchEvent(new Event("newArtistDataAvailable"));
-		}
+
 		private function coverDataHandler(image:String):ByteArray
 		{
 			var base64Dec:Base64Decoder;
@@ -190,23 +190,23 @@ package Network.Protocol
 		}
 		public function getCover():ByteArray
 		{
-			return imageData;
+			return _imageData;
 		}
 		public function getShuffleStatus():Boolean
 		{
-			return shuffleStatus;	
+			return _shuffleStatus;	
 		}
 		public function getPlaylistData():ArrayList
 		{
-			return trackList;
+			return _trackList;
 		}
 		public function getMuteStatus():Boolean
 		{
-			return muteStatus;
+			return _muteStatus;
 		}
 		public function getRepeatStatus():Boolean
 		{
-			return repeatStatus;
+			return _repeatStatus;
 		}
 	}
 }

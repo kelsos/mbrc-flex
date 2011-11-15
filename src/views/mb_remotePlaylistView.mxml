@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
-		xmlns:s="library://ns.adobe.com/flex/spark" title="Playlist" viewActivate="viewActivateHandler()">
+		xmlns:s="library://ns.adobe.com/flex/spark" title="Playlist" viewActivate="viewActivateHandler(event)" creationComplete="playlistViewCreationCompleteHandler(event)">
 	<s:layout>
 		<s:BasicLayout/>
 	</s:layout>
@@ -9,24 +9,33 @@
 			import Network.ConnectionManager;
 			import Network.Protocol.AnswerHandler;
 			
+			import mx.events.FlexEvent;
+			
 			import spark.events.IndexChangeEvent;
-			private function viewActivateHandler():void
+			
+			private var _dataPullTimer:Timer;
+			private function viewActivateHandler(event:Event):void
 			{
-				AnswerHandler.getInstance().addEventListener("playlistDataAvailable",playlistDataHandler);
 				ConnectionManager.getInstance().requestPlaylist();
 			}
 			protected function playlistDataHandler(event:Event):void
 			{
-					playlistData.dataProvider=AnswerHandler.getInstance().getPlaylistData();
-			}
-			protected function button1_clickHandler(event:MouseEvent):void
-			{
-				// TODO Auto-generated method stub
-				ConnectionManager.getInstance().requestPlaylist();
+				playlistData.dataProvider=AnswerHandler.getInstance().getPlaylistData();
 			}
 			protected function playlistDatachangeHandler(event:IndexChangeEvent):void
 			{
-				
+				var selectedTrack:String = AnswerHandler.getInstance().getPlaylistData().getItemAt(playlistData.selectedIndex).toString();
+				ConnectionManager.getInstance().playSelectedTrack(selectedTrack);
+			}
+			
+			protected function playlistViewCreationCompleteHandler(event:FlexEvent):void
+			{
+				AnswerHandler.getInstance().addEventListener("playlistDataAvailable",playlistDataHandler);
+				if(AnswerHandler.getInstance().getPlaylistData()!=null)
+					playlistData.dataProvider=AnswerHandler.getInstance().getPlaylistData();
+				_dataPullTimer = new Timer(500,1);
+				_dataPullTimer.addEventListener(TimerEvent.TIMER,viewActivateHandler);
+				_dataPullTimer.start();
 			}
 			
 		]]>

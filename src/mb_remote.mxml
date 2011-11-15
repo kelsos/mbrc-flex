@@ -2,23 +2,26 @@
 <s:ViewNavigatorApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
 							xmlns:s="library://ns.adobe.com/flex/spark"
 							firstView="views.mb_remoteHomeView"
-							splashScreenImage="@Embed('icons/MusicBee_Logo.png')"
-							splashScreenScaleMode="none" title="Remote Control for MusicBee">
+							splashScreenImage="@Embed('assets/splash-screen.png')"
+							splashScreenScaleMode="zoom" title="Remote Control for MusicBee">
 	<fx:Script>
 		<![CDATA[
+			import skins.buttonbar.horizonal.MiddleHButton;
 			import views.mb_remotePlaylistView;
 			import views.mb_remoteSettingsView;
 			
+			private var skins_RoundPlayButton_obj:skins.buttonbar.horizonal.MiddleHButton;
+						
 		]]>
 	</fx:Script>
 	<s:navigationContent>
-		<s:Button icon="@Embed('icons/home.png')" click="navigator.popToFirstView()" width="80%" height="80%"/>
-		<s:Button icon="@Embed('icons/list.png')" click="navigator.pushView(views.mb_remotePlaylistView)" />
-		<s:Button icon="@Embed('icons/settings.png')" click="navigator.pushView(views.mb_remoteSettingsView)" width="80%" height="80%"/>
+		<s:Button icon="@Embed('assets/home.png')" click="navigator.popToFirstView()" width="70" height="55"/>
+		<s:Button icon="@Embed('assets/list.png')" click="navigator.pushView(views.mb_remotePlaylistView)" width="70" height="55" />
+		<s:Button icon="@Embed('assets/settings.png')" click="navigator.pushView(views.mb_remoteSettingsView)" width="70" height="55"/>
 	</s:navigationContent>
 	<fx:Style source="mb_remote.css"/>
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
-
+	
 </s:ViewNavigatorApplication>

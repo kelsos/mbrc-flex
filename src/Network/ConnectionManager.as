@@ -1,30 +1,20 @@
 // ActionScript file
 package Network {
-	import Data.TrackInfo;
-	
 	import Network.Protocol.AnswerHandler;
 	
 	import flash.events.*;
 	import flash.net.XMLSocket;
-	import flash.utils.ByteArray;
 	import flash.utils.Timer;
-	import flash.xml.XMLNode;
 	
-	import flashx.textLayout.formats.Float;
-	
-	import mx.collections.ArrayList;
-	
-	import spark.components.Image;
 	import spark.managers.PersistenceManager;
 	
 	public class ConnectionManager extends EventDispatcher {
-		private var xmlSocket:XMLSocket;
+		private var _xmlSocket:XMLSocket;
 		private var _serverAnswer:String;
-		private var answerHandle:AnswerHandler;
+		private var _dataPoller:Timer;
+		private var _pManage:PersistenceManager;
 		private static var _instance:ConnectionManager;
-		private var dataPoller:Timer;
-		private var p:PersistenceManager;
-
+		
 		public function ConnectionManager(enforcer:SingletonEnforcer){
 			if (enforcer==null)
 			{
@@ -32,14 +22,14 @@ package Network {
 			}
 			else
 			{
-			xmlSocket = new XMLSocket();
-			_serverAnswer="";
-			configureListeners(xmlSocket);
-			dataPoller = new Timer(3000,0);
-			dataPoller.addEventListener(TimerEvent.TIMER,dataPollerTickHandler);
-			dataPoller.start();
-			p = new PersistenceManager();
-			connect();
+				_pManage = new PersistenceManager();
+				_xmlSocket = new XMLSocket();
+				configureListeners(_xmlSocket);
+				connect();
+				_dataPoller = new Timer(3000,0);
+				_dataPoller.addEventListener(TimerEvent.TIMER,dataPollerTickHandler);
+				_dataPoller.start();
+
 			}
 		}
 		
@@ -62,20 +52,21 @@ package Network {
 			}
 			return _instance;
 		}
-
+		
 		public function connect():void
 		{
-			if (!xmlSocket.connected)
-				xmlSocket.connect(p.getProperty("serverAddress").toString(),parseInt(p.getProperty("serverPort").toString()));
+			if (!_xmlSocket.connected)
+				_xmlSocket.connect(_pManage.getProperty("serverAddress").toString(),parseInt(_pManage.getProperty("serverPort").toString()));
 		}
 		private function send(data:Object):void 
 		{
-			xmlSocket.send(data);
+			connect();
+			_xmlSocket.send(data);
 		}
 		
 		public function disconnect():void 
 		{
-			xmlSocket.close();
+			_xmlSocket.close();
 		}
 		private function configureListeners(dispatcher:IEventDispatcher):void {
 			dispatcher.addEventListener(Event.CLOSE, closeHandler);
@@ -103,7 +94,7 @@ package Network {
 		private function dataHandler(event:DataEvent):void 
 		{
 			var xml:XML= new XML(event.data);
-			AnswerHandler.getInstance().serverAnswerHandler(xml);
+			AnswerHandler.getInstance().answerProcessor(xml);
 		}
 		private function ioErrorHandler(event:IOErrorEvent):void 
 		{
@@ -148,7 +139,7 @@ package Network {
 			var volumeXml:XML;
 			if ((vol>=0)&&(vol<=10))
 			{
-			 volumeXml = new XML("<volume>"+vol+"</volume>");
+				volumeXml = new XML("<volume>"+vol+"</volume>");
 			}
 			else
 			{
@@ -203,6 +194,12 @@ package Network {
 		{
 			var playlistXml:XML = new XML("<playlist/>");
 			send(playlistXml);
+			send("\r\n");
+		}
+		public function playSelectedTrack(track:String):void
+		{
+			var playSelectedXml:XML = new XML("<playNow>"+track+"</playNow>");
+			send(playSelectedXml);
 			send("\r\n");
 		}
 	}

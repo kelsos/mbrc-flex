@@ -6,6 +6,7 @@ package Data
 		private var _title:String;
 		private var _album:String;
 		private var _year:String;
+		
 		public function TrackInfo()
 		{
 			
@@ -45,12 +46,24 @@ package Data
 		{
 			return _year;
 		}
-
 		public function set year(value:String):void
 		{
 			_year = value;
 		}
-
-
+		public function fromXml(xml:XML):void
+		{
+			var count:int=0;
+			this.artist = xml.child(count++);
+			this.title = xml.child(count++);
+			this.album = xml.child(count++);
+			this.year = xml.child(count++);
+		}
+		public function clearData():void
+		{
+			this.artist=null;
+			this.title=null;
+			this.album=null;
+			this.year=null;
+		}
 	}
 }
