@@ -26,11 +26,13 @@
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
-	<s:TextInput id="serverAddress" x="10" y="41" width="333"
+	<s:TextInput id="serverAddress" x="10" y="70" width="333"
 				 change="serverAddress_changeHandler(event)"/>
-	<s:Label x="6" y="10" text="Server Address:"/>
-	<s:TextInput id="portNumber" x="351" y="41" width="119" change="portNumber_changeHandler(event)"/>
-	<s:Label x="351" y="10" text="Port:"/>
-	<s:TextArea x="10" y="474" width="460" height="195" editable="false"
+	<s:Label x="9" y="47" fontSize="20" text="Server Address:"/>
+	<s:TextInput id="portNumber" restrict="0-9" softKeyboardType="number" maxChars="4" x="351" y="70" width="119" change="portNumber_changeHandler(event)"
+				 enabled="true"/>
+	<s:Label x="351" y="47" fontSize="20" text="Port:"/>
+	<s:TextArea x="10" y="713" width="460" height="39" editable="false"
 				text="Copyright 2011 (c) Paparas Konstantinos MusicBee Remote for Android"/>
+	<s:Label x="10" y="10" text="Settings:"/>
 </s:View>

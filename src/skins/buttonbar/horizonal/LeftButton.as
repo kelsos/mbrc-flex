@@ -1,7 +1,7 @@
 package skins.buttonbar.horizonal
 {
-	import skins.assets.buttonbar.horizonal.LeftDown
-	import skins.assets.buttonbar.horizonal.LeftUp;
+	import assets.buttonbar.horizonal.LeftDown
+	import assets.buttonbar.horizonal.LeftUp;
 	
 	import spark.skins.mobile.ButtonSkin;
 	
@@ -11,8 +11,8 @@ package skins.buttonbar.horizonal
 		{
 			super();
 
-			upBorderSkin = skins.assets.buttonbar.horizonal.LeftUp;
-			downBorderSkin = skins.assets.buttonbar.horizonal.LeftDown;
+			upBorderSkin = assets.buttonbar.horizonal.LeftUp;
+			downBorderSkin = assets.buttonbar.horizonal.LeftDown;
 			measuredDefaultHeight = 128;
 			measuredDefaultWidth = 128;
 		}

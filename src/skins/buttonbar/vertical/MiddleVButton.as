@@ -1,7 +1,7 @@
 package skins.buttonbar.vertical
 {
-	import skins.assets.buttonbar.vertical.MiddleButtonDown;
-	import skins.assets.buttonbar.vertical.MiddleButtonUp;
+	import assets.buttonbar.vertical.MiddleButtonDown;
+	import assets.buttonbar.vertical.MiddleButtonUp;
 	
 	import spark.skins.mobile.ButtonSkin;
 	
@@ -10,8 +10,8 @@ package skins.buttonbar.vertical
 		public function MiddleVButton()
 		{
 			super();
-			upBorderSkin = skins.assets.buttonbar.vertical.MiddleButtonUp;
-			downBorderSkin = skins.assets.buttonbar.vertical.MiddleButtonDown;
+			upBorderSkin = assets.buttonbar.vertical.MiddleButtonUp;
+			downBorderSkin = assets.buttonbar.vertical.MiddleButtonDown;
 			measuredDefaultHeight = 128;
 			measuredDefaultWidth = 128;
 		}

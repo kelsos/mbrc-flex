@@ -1,7 +1,7 @@
 package skins.buttonbar.vertical
 {
-	import skins.assets.buttonbar.vertical.TopButtonDown;
-	import skins.assets.buttonbar.vertical.TopButtonUp;
+	import assets.buttonbar.vertical.TopButtonDown;
+	import assets.buttonbar.vertical.TopButtonUp;
 	
 	import spark.skins.mobile.ButtonSkin;
 	
@@ -10,8 +10,8 @@ package skins.buttonbar.vertical
 		public function TopButton()
 		{
 			super();
-			upBorderSkin = skins.assets.buttonbar.vertical.TopButtonUp;
-			downBorderSkin = skins.assets.buttonbar.vertical.TopButtonDown;
+			upBorderSkin = assets.buttonbar.vertical.TopButtonUp;
+			downBorderSkin = assets.buttonbar.vertical.TopButtonDown;
 			measuredDefaultHeight = 128;
 			measuredDefaultWidth = 128;
 		}

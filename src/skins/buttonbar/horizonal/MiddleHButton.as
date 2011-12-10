@@ -1,7 +1,7 @@
 package skins.buttonbar.horizonal
 {
-	import skins.assets.buttonbar.horizonal.MiddleUp;
-	import skins.assets.buttonbar.horizonal.MiddleDown;
+	import assets.buttonbar.horizonal.MiddleUp;
+	import assets.buttonbar.horizonal.MiddleDown;
 
 	import spark.skins.mobile.ButtonSkin;
 	
@@ -10,8 +10,8 @@ package skins.buttonbar.horizonal
 		public function MiddleHButton()
 		{
 			super();
-			upBorderSkin = skins.assets.buttonbar.horizonal.MiddleUp;
-			downBorderSkin = skins.assets.buttonbar.horizonal.MiddleDown;
+			upBorderSkin = assets.buttonbar.horizonal.MiddleUp;
+			downBorderSkin = assets.buttonbar.horizonal.MiddleDown;
 			measuredDefaultHeight = 128;
 			measuredDefaultWidth = 128;
 		}

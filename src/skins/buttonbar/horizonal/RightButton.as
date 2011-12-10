@@ -1,7 +1,7 @@
 package skins.buttonbar.horizonal
 {
-	import skins.assets.buttonbar.horizonal.RightDown;
-	import skins.assets.buttonbar.horizonal.RightUp;
+	import assets.buttonbar.horizonal.RightDown;
+	import assets.buttonbar.horizonal.RightUp;
 	
 	import spark.skins.mobile.ButtonSkin;
 	
@@ -10,8 +10,8 @@ package skins.buttonbar.horizonal
 		public function RightButton()
 		{
 			super();
-			upBorderSkin = skins.assets.buttonbar.horizonal.RightUp;
-			downBorderSkin = skins.assets.buttonbar.horizonal.RightDown;
+			upBorderSkin = assets.buttonbar.horizonal.RightUp;
+			downBorderSkin = assets.buttonbar.horizonal.RightDown;
 			measuredDefaultHeight = 128;
 			measuredDefaultWidth = 128;
 		}

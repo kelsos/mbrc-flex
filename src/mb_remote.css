@@ -6,9 +6,15 @@ global
 {
 	content-background-alpha: 1.0;
 }
+s|TextBase
+{
+	color: #8F8145;	
+}
+
 s|View
 {
 	backgroundColor: #333333;
+	color: #8F8145;
 }
 s|TextInput
 {
@@ -17,8 +23,10 @@ s|TextInput
 }
 s|Label
 {
-	fontFamily: Arial;
+	fontFamily: "_sans";
 	color: #8F8145;
+	fontSize: 23;
+	textAlign: left;
 }
 s|Image
 {
@@ -31,10 +39,11 @@ s|Button
 }
 s|List
 {
-	contentBackgroundColor: #333333;
-	alternatingItemColors:#333333;
-	borderVisible:false;
+	contentBackgroundColor: #434343;
+	alternatingItemColors:#454545;
+	borderVisible:true;
 	color:#8F8145;
+	fontSize: 24;
 }
 s|TextArea
 {
@@ -82,4 +91,16 @@ s|Button.LibraryButton
 s|Button.SettingsButton
 {
 	skinClass:ClassReference("skins.buttonbar.horizonal.RightButton")
+}
+s|Label.playingTrack
+{
+	fontFamily: "_sans";
+	fontSize: 24;
+	fontWeight: bold;
+	textAlign: left;
+}
+s|Label.playingTrackLabel
+{
+	fontSize: 20;
+	textDecoration: none;
 }

@@ -1,4 +1,4 @@
-:MusicBee Remote (Flex)
+MusicBee Remote (Flex)
 =================================
 This is a first attempt to create the MusicBee Remote mobile appplication using (Adobe) [Apache Flex](https://flex.apache.org/).
 

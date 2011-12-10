@@ -1,6 +1,6 @@
 package Data
 {
-	public class TrackInfo
+	public class TrackInfo extends Object
 	{
 		private var _artist:String;
 		private var _title:String;
@@ -11,7 +11,7 @@ package Data
 		{
 			
 		}
-		
+		[Bindable]
 		public function get artist():String
 		{
 			return _artist;
@@ -21,7 +21,7 @@ package Data
 		{
 			_artist = value;
 		}
-
+		[Bindable]
 		public function get title():String
 		{
 			return _title;

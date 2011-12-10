@@ -1,43 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:View xmlns:fx="http://ns.adobe.com/mxml/2009"
 		xmlns:s="library://ns.adobe.com/flex/spark"
-		actionBarVisible="false" creationComplete="playlistViewCreationCompleteHandler(event)"
-		overlayControls="false" title="Playlist" viewActivate="viewActivateHandler(event)">
+		actionBarVisible="false"
+		viewActivate="viewActivateHandler(event)"
+		viewDeactivate="viewDeactivateHandler(event)"
+		overlayControls="false" title="Playlist">
 	<s:layout>
 		<s:BasicLayout/>
 	</s:layout>
 	<fx:Script>
 		<![CDATA[
+			import Data.TrackInfo;
+			
 			import Network.ConnectionManager;
 			import Network.Protocol.AnswerHandler;
 			
 			import mx.events.FlexEvent;
 			
 			import spark.events.IndexChangeEvent;
+			import spark.events.ViewNavigatorEvent;
 			
 			private var _dataPullTimer:Timer;
-			private function viewActivateHandler(event:Event):void
+			private function dataPullTimerHandler(event:Event):void
 			{
 				ConnectionManager.getInstance().requestPlaylist();
+				_dataPullTimer.removeEventListener(TimerEvent.TIMER,dataPullTimerHandler);
 			}
 			protected function playlistDataHandler(event:Event):void
 			{
 				playlistData.dataProvider=AnswerHandler.getInstance().getPlaylistData();
+				AnswerHandler.getInstance().clearPlaylistData();
 			}
 			protected function playlistDatachangeHandler(event:IndexChangeEvent):void
 			{
-				var selectedTrack:String = AnswerHandler.getInstance().getPlaylistData().getItemAt(playlistData.selectedIndex).toString();
-				ConnectionManager.getInstance().playSelectedTrack(selectedTrack);
+				var artist:String = ((playlistData.selectedItem)as TrackInfo).artist;
+				var title:String = ((playlistData.selectedItem)as TrackInfo).title;
+				ConnectionManager.getInstance().playSelectedTrack(artist,title);
 			}
 			
-			protected function playlistViewCreationCompleteHandler(event:FlexEvent):void
+			protected function viewActivateHandler(event:ViewNavigatorEvent):void
 			{
 				AnswerHandler.getInstance().addEventListener("playlistDataAvailable",playlistDataHandler);
 				if(AnswerHandler.getInstance().getPlaylistData()!=null)
 					playlistData.dataProvider=AnswerHandler.getInstance().getPlaylistData();
-				_dataPullTimer = new Timer(500,1);
-				_dataPullTimer.addEventListener(TimerEvent.TIMER,viewActivateHandler);
+				_dataPullTimer = new Timer(1000,1);
+				_dataPullTimer.addEventListener(TimerEvent.TIMER,dataPullTimerHandler);
 				_dataPullTimer.start();
+			}
+			
+			protected function viewDeactivateHandler(event:ViewNavigatorEvent):void
+			{
+				AnswerHandler.getInstance().removeEventListener("playlistDataAvailable",playlistDataHandler);
+				playlistData.dataProvider=null;
 			}
 			
 		]]>
@@ -45,6 +59,13 @@
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
-	<s:List id="playlistData" x="10" y="10" width="460" height="660"
-			change="playlistDatachangeHandler(event)"></s:List>
+	<s:List id="playlistData" x="10" y="41" width="460" height="658"
+			change="playlistDatachangeHandler(event)" itemRenderer="Data.playlistItemRenderer">
+	</s:List>
+	<s:Button x="140" y="707" width="100" height="45" label="Back" color="#8F8106" fontFamily="_sans"
+			  fontSize="20" fontStyle="normal" fontWeight="normal" styleName="previousButton"/>
+	<s:Button x="240" y="707" width="100" height="45" label="Refresh" color="#8F8106"
+			  fontFamily="_sans" fontSize="20" fontWeight="normal" styleName="nextButton"/>
+	<s:Label id="nowPlayingListLabel" x="10" y="13" fontFamily="Verdana" fontSize="20"
+			 fontWeight="normal" text="Now Playing List"/>
 </s:View>

@@ -25,11 +25,9 @@ package Network {
 				_pManage = new PersistenceManager();
 				_xmlSocket = new XMLSocket();
 				configureListeners(_xmlSocket);
-				connect();
-				_dataPoller = new Timer(3000,0);
+				_dataPoller = new Timer(1000,0);
 				_dataPoller.addEventListener(TimerEvent.TIMER,dataPollerTickHandler);
 				_dataPoller.start();
-
 			}
 		}
 		
@@ -42,6 +40,7 @@ package Network {
 			requestMuteState();
 			requestShuffleState();
 			requestRepeatState();
+			requestScrobblerState();
 		}
 		
 		public static function getInstance():ConnectionManager
@@ -137,7 +136,7 @@ package Network {
 		public function requestVolume(vol:Number=-1):void
 		{
 			var volumeXml:XML;
-			if ((vol>=0)&&(vol<=10))
+			if ((vol>=0)&&(vol<=100))
 			{
 				volumeXml = new XML("<volume>"+vol+"</volume>");
 			}
@@ -190,15 +189,21 @@ package Network {
 			send(repeatXml);
 			send("\r\n");
 		}
+		public function requestScrobblerState(action:String="state"):void
+		{
+			var scrobblerXml:XML = new XML("<scrobbler>"+action+"</scrobbler>");
+			send(scrobblerXml);
+			send("\r\n");
+		}
 		public function requestPlaylist():void
 		{
 			var playlistXml:XML = new XML("<playlist/>");
 			send(playlistXml);
 			send("\r\n");
 		}
-		public function playSelectedTrack(track:String):void
+		public function playSelectedTrack(artist:String,title:String):void
 		{
-			var playSelectedXml:XML = new XML("<playNow>"+track+"</playNow>");
+			var playSelectedXml:XML = new XML("<playNow>"+artist + " - " +title+"</playNow>");
 			send(playSelectedXml);
 			send("\r\n");
 		}

@@ -21,6 +21,7 @@ package Network.Protocol
 	[Event(name="playlistDataAvailable", type="flash.events.Event")]
 	[Event(name="MuteStatusChanged", type="flash.events.Event")]
 	[Event(name="repeatStatusChanged", type="flash.events.Event")]
+	[Event(name="ScrobblerStatusChanged", type="flash.events.Event")]
 	
 	//dispatchEvent(new Event('socketData'));
 	public class AnswerHandler extends EventDispatcher
@@ -33,7 +34,9 @@ package Network.Protocol
 		private var _shuffleStatus:Boolean;
 		private var _muteStatus:Boolean;
 		private var _repeatStatus:Boolean;
-		private var _trackList:ArrayList; 
+		private var _scrobblerStatus:Boolean;
+		private var _trackList:ArrayList;
+		private var songDataRequestDelay:Timer;
 		private static var _instance:AnswerHandler;
 		
 		/**
@@ -97,7 +100,7 @@ package Network.Protocol
 			{
 				if(serverAnswer.text().toString()=="True")
 				{
-					var songDataRequestDelay:Timer = new Timer(500,1);
+					songDataRequestDelay = new Timer(500,1);
 					songDataRequestDelay.addEventListener(TimerEvent.TIMER_COMPLETE,dispatchSendSongData);
 					songDataRequestDelay.start();
 				}
@@ -159,13 +162,31 @@ package Network.Protocol
 				_trackList = new ArrayList();
 				for each (var xtag:XML in serverAnswer.children())
 				{
-					_trackList.addItem(xtag.text().toString());
+					var track:TrackInfo = new TrackInfo();
+					var count:int=0;
+					track.artist = xtag.child(count++);
+					track.title = xtag.child(count++);
+					_trackList.addItem(track);
 				}
 				dispatchEvent(new Event("playlistDataAvailable"));
+			}
+			if(serverAnswer.name()=="scrobbler")
+			{
+				switch(serverAnswer.text().toString()){
+					case "True":
+						_scrobblerStatus=true;
+						break;
+					case "False":
+						_scrobblerStatus=false;
+						break;
+				}	
+				dispatchEvent(new Event("ScrobblerStatusChanged"));
 			}
 		}
 		protected function dispatchSendSongData(event:TimerEvent):void
 		{
+			songDataRequestDelay.removeEventListener(TimerEvent.TIMER_COMPLETE,dispatchSendSongData);
+			songDataRequestDelay=null;
 			dispatchEvent(new Event("SendSongData"));
 		}
 		public function getVolume():int
@@ -196,6 +217,10 @@ package Network.Protocol
 		{
 			return _shuffleStatus;	
 		}
+		public function clearPlaylistData():void
+		{
+			_trackList=null;
+		}
 		public function getPlaylistData():ArrayList
 		{
 			return _trackList;
@@ -207,6 +232,14 @@ package Network.Protocol
 		public function getRepeatStatus():Boolean
 		{
 			return _repeatStatus;
+		}
+		public function getScrobblerStatus():Boolean
+		{
+			return _scrobblerStatus;
+		}
+		public function clearCoverData():void
+		{
+	     	_imageData=null;
 		}
 	}
 }
